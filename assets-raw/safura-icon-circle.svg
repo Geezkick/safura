@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="circle-clip">
+      <circle cx="512" cy="512" r="512"/>
+    </clipPath>
+  </defs>
+  <circle cx="512" cy="512" r="512" fill="#E1F5EE"/>
+  <g clip-path="url(#circle-clip)">
+    <ellipse cx="512" cy="502" rx="204" ry="280" fill="none" stroke="#085041" stroke-width="36" opacity="0.1"/>
+    <ellipse cx="512" cy="502" rx="204" ry="280" fill="none" stroke="#085041" stroke-width="14"/>
+    <line x1="512" y1="222" x2="512" y2="782" stroke="#085041" stroke-width="14"/>
+    <line x1="308" y1="502" x2="716" y2="502" stroke="#085041" stroke-width="14"/>
+    <circle cx="512" cy="502" r="40" fill="#085041"/>
+    <circle cx="512" cy="502" r="20" fill="#E1F5EE"/>
+    <path d="M512 369 Q574 328 624 276 Q604 358 552 410 Q594 388 656 388 Q604 432 542 432 Q530 462 512 502 Q494 462 482 432 Q420 432 368 388 Q430 388 472 410 Q420 358 400 276 Q450 328 512 369Z" fill="#EF9F27"/>
+    <ellipse cx="512" cy="646" rx="70" ry="34" fill="#085041" opacity="0.2"/>
+    <line x1="512" y1="646" x2="512" y2="782" stroke="#085041" stroke-width="22" stroke-linecap="round"/>
+    <line x1="442" y1="704" x2="512" y2="678" stroke="#085041" stroke-width="16" stroke-linecap="round"/>
+    <line x1="582" y1="728" x2="512" y2="702" stroke="#085041" stroke-width="16" stroke-linecap="round"/>
+  </g>
+</svg>

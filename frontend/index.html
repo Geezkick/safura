@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Safura AI — Understand Every Meal</title>
+  <meta name="description" content="Safura AI is the world's most culturally-aware food intelligence platform. Scan food, detect allergens, plan meals, and explore global cuisines." />
+  <meta name="theme-color" content="#085041" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Safura AI — Understand Every Meal" />
+  <meta property="og:description" content="The world's food intelligence network. Scan, learn, eat confidently." />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Favicon inline SVG -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23085041'/%3E%3Cellipse cx='16' cy='15.5' rx='5.8' ry='8' fill='none' stroke='%235DCAA5' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='15.5' r='2.2' fill='%235DCAA5'/%3E%3Cpath d='M16 11.2 Q18.6 9.6 20.4 7.8 Q19.8 10.8 17.8 12.6 Q19.6 11.8 21.8 11.8 Q19.6 13.6 17 13.6 Q16.6 14.6 16 15.5 Q15.4 14.6 15 13.6 Q12.4 13.6 10.2 11.8 Q12.4 11.8 14.2 12.6 Q12.2 10.8 11.6 7.8 Q13.4 9.6 16 11.2Z' fill='%23EF9F27'/%3E%3C/svg%3E" />
+
+  <link rel="stylesheet" href="src/styles/main.css" />
+</head>
+<body>
+
+  <!-- ── Nav ───────────────────────────────────────────── -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" id="nav-logo-link">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 1024 1024">
+          <rect width="1024" height="1024" rx="225" fill="#085041"/>
+          <ellipse cx="512" cy="502" rx="194" ry="266" fill="none" stroke="#1D9E75" stroke-width="36"/>
+          <ellipse cx="512" cy="502" rx="194" ry="266" fill="none" stroke="#5DCAA5" stroke-width="13"/>
+          <line x1="512" y1="236" x2="512" y2="768" stroke="#5DCAA5" stroke-width="13"/>
+          <line x1="318" y1="502" x2="706" y2="502" stroke="#5DCAA5" stroke-width="13"/>
+          <circle cx="512" cy="502" r="36" fill="#5DCAA5"/>
+          <circle cx="512" cy="502" r="18" fill="#085041"/>
+          <path d="M512 369 Q574 328 624 276 Q604 358 552 410 Q594 388 656 388 Q604 432 542 432 Q530 462 512 502 Q494 462 482 432 Q420 432 368 388 Q430 388 472 410 Q420 358 400 276 Q450 328 512 369Z" fill="#EF9F27"/>
+        </svg>
+        <span class="nav-wordmark">safura</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#modules" class="nav-link">Modules</a>
+        <a href="#demo" class="nav-link">Try Demo</a>
+        <a href="#docs" class="nav-link">Docs</a>
+      </div>
+      <a href="#demo" class="btn btn-primary nav-cta">Try Free</a>
+      <button class="nav-mobile-btn" id="navMobileBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav-mobile-menu" id="navMobileMenu">
+      <a href="#features" class="nav-mobile-link">Features</a>
+      <a href="#modules" class="nav-mobile-link">Modules</a>
+      <a href="#demo" class="nav-mobile-link">Try Demo</a>
+      <a href="#docs" class="nav-mobile-link">API Docs</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ──────────────────────────────────────────── -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        AI-Powered · 14 Intelligence Modules · 195 Cuisines
+      </div>
+      <h1 class="hero-title">
+        Understand<br/>
+        <span class="hero-title-accent">every meal.</span>
+      </h1>
+      <p class="hero-subtitle">
+        The world's most culturally-aware food intelligence platform.<br/>
+        Scan food, detect allergens, plan meals, explore global cuisines.
+      </p>
+      <div class="hero-actions">
+        <a href="#demo" class="btn btn-primary btn-xl">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 2a7 7 0 1 1 0 14A7 7 0 0 1 12 2Z" stroke="currentColor" stroke-width="2"/><path d="M12 16v6M8 22h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Try the Demo
+        </a>
+        <a href="#features" class="btn btn-ghost btn-xl">Explore Features →</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hero-stat-num">195</span><span class="hero-stat-label">Cuisines</span></div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat"><span class="hero-stat-num">14</span><span class="hero-stat-label">AI Modules</span></div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat"><span class="hero-stat-num">14</span><span class="hero-stat-label">Allergens Tracked</span></div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat"><span class="hero-stat-num">∞</span><span class="hero-stat-label">Recipes</span></div>
+      </div>
+    </div>
+    <!-- Floating scan card preview -->
+    <div class="hero-card-preview" id="heroCard">
+      <div class="scan-card">
+        <div class="scan-card-header">
+          <div class="scan-card-icon">🍽️</div>
+          <div>
+            <div class="scan-card-title">Jollof Rice</div>
+            <div class="scan-card-origin">📍 West Africa · Nigeria</div>
+          </div>
+          <div class="scan-card-confidence">HIGH</div>
+        </div>
+        <div class="scan-card-macros">
+          <div class="macro-chip">🔥 420 kcal</div>
+          <div class="macro-chip">⚡ 8g protein</div>
+          <div class="macro-chip">🌾 78g carbs</div>
+          <div class="macro-chip">🫒 12g fat</div>
+        </div>
+        <div class="scan-card-row safe">✅ Vegan · Gluten-free · Halal</div>
+        <div class="scan-card-row warn">⚠️ May contain traces of fish stock</div>
+        <div class="scan-card-culture">🌍 A beloved West African one-pot dish, often at the centre of celebrations.</div>
+        <div class="scan-card-actions">
+          <button class="scan-action-btn">Get Recipe</button>
+          <button class="scan-action-btn">Nutrition Breakdown</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features Grid ─────────────────────────────────── -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-label">Core Capabilities</div>
+      <h2 class="section-title">Everything food, nothing else.</h2>
+      <p class="section-subtitle">Every capability built specifically for food intelligence — not a general AI wearing a chef's hat.</p>
+
+      <div class="features-grid">
+        <div class="feature-card feature-card-large">
+          <div class="feature-icon">🔍</div>
+          <h3>AI Food Recognition</h3>
+          <p>Point your camera at any dish from any culture. Safura identifies it, breaks down the ingredients, estimates macros, and flags allergens — in seconds.</p>
+          <div class="feature-tag-row">
+            <span class="feature-tag">Image Scan</span>
+            <span class="feature-tag">Text Search</span>
+            <span class="feature-tag">Barcode</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Allergen Guard</h3>
+          <p>All 14 EU allergens tracked. Cross-contamination flagged. Three-verdict system: ✅ Safe · ⚠️ Caution · 🚫 Avoid.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Nutrition Coach</h3>
+          <p>Daily macro tracking tied to your personal goals. Specific food suggestions to fill nutritional gaps.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌍</div>
+          <h3>Global Encyclopedia</h3>
+          <p>Deep knowledge of 195 cuisines. Cultural context, preparation traditions, and regional variations — always respectful.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🍴</div>
+          <h3>Restaurant Menu Scanner</h3>
+          <p>Scan any menu. Translate, allergen-check every item, and get your #1 recommended order ranked for your profile.</p>
+        </div>
+
+        <div class="feature-card feature-card-large">
+          <div class="feature-icon">✈️</div>
+          <h3>Travel Food Assistant</h3>
+          <p>Abroad? Safura translates menus, warns about regional allergen practices (fish sauce in SE Asia, hidden dairy in Europe), and teaches you key food phrases in the local language.</p>
+          <div class="feature-tag-row">
+            <span class="feature-tag">Translation</span>
+            <span class="feature-tag">Cultural Alerts</span>
+            <span class="feature-tag">Local Phrases</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">👨‍🍳</div>
+          <h3>Recipe Generator</h3>
+          <p>From whatever's in your fridge. Complete recipes with timings, difficulty, nutrition, and allergen swaps.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>7-Day Meal Planner</h3>
+          <p>Personalized weekly plans with full shopping lists grouped by store section. Varied cuisines, no repeats.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌿</div>
+          <h3>Freshness Detector</h3>
+          <p>Photo or description — get a freshness verdict, storage tips, and safe use guidance in seconds.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌱</div>
+          <h3>Carbon Footprint</h3>
+          <p>CO₂e per serving, water usage, land use rating and sustainability score for every meal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Modules Section ───────────────────────────────── -->
+  <section class="modules-section" id="modules">
+    <div class="container">
+      <div class="section-label">Intelligence Modules</div>
+      <h2 class="section-title">14 specialist AI modes.</h2>
+      <p class="section-subtitle">Each module is a dedicated AI persona optimised for one context. No generic chat — pure specialists.</p>
+
+      <div class="modules-grid" id="modulesGrid">
+        <!-- JS populated -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Demo Section ──────────────────────────────────── -->
+  <section class="demo-section" id="demo">
+    <div class="container">
+      <div class="section-label">Live Demo</div>
+      <h2 class="section-title">Try Safura AI now.</h2>
+      <p class="section-subtitle">Enter any food, dish, or ingredient and see Safura's intelligence in action. Powered by Claude claude-sonnet-4-20250514.</p>
+
+      <div class="demo-shell">
+        <!-- Mode Tabs -->
+        <div class="demo-tabs" id="demoTabs">
+          <button class="demo-tab active" data-mode="scan">🔍 Food Scan</button>
+          <button class="demo-tab" data-mode="recipe">👨‍🍳 Recipe</button>
+          <button class="demo-tab" data-mode="allergen">🛡️ Allergen</button>
+          <button class="demo-tab" data-mode="encyclopedia">🌍 Encyclopedia</button>
+          <button class="demo-tab" data-mode="nutrition">📊 Nutrition</button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="demo-input-area">
+          <div class="demo-input-row">
+            <div class="demo-input-wrap">
+              <span class="demo-input-icon" id="demoInputIcon">🍽️</span>
+              <input
+                type="text"
+                id="demoInput"
+                class="demo-input"
+                placeholder="Type any food, dish, or ingredient…"
+                autocomplete="off"
+              />
+            </div>
+            <button class="btn btn-primary demo-submit" id="demoSubmit">
+              <span id="demoSubmitLabel">Analyse</span>
+              <div class="demo-spinner hidden" id="demoSpinner"></div>
+            </button>
+          </div>
+
+          <!-- Quick chips -->
+          <div class="demo-chips" id="demoChips">
+            <button class="demo-chip" data-val="Jollof Rice">Jollof Rice</button>
+            <button class="demo-chip" data-val="Pad Thai">Pad Thai</button>
+            <button class="demo-chip" data-val="Croissant">Croissant</button>
+            <button class="demo-chip" data-val="Injera">Injera</button>
+            <button class="demo-chip" data-val="Biryani">Biryani</button>
+            <button class="demo-chip" data-val="Sushi">Sushi</button>
+            <button class="demo-chip" data-val="Tacos">Tacos</button>
+            <button class="demo-chip" data-val="Hummus">Hummus</button>
+          </div>
+
+          <!-- Profile strip -->
+          <div class="demo-profile-strip">
+            <label class="demo-profile-label">Your allergens (demo):</label>
+            <div class="demo-allergen-pills" id="allergenPills">
+              <button class="allergen-pill" data-allergen="nuts">🥜 Nuts</button>
+              <button class="allergen-pill" data-allergen="dairy">🥛 Dairy</button>
+              <button class="allergen-pill" data-allergen="gluten">🌾 Gluten</button>
+              <button class="allergen-pill" data-allergen="eggs">🥚 Eggs</button>
+              <button class="allergen-pill" data-allergen="shellfish">🦐 Shellfish</button>
+              <button class="allergen-pill" data-allergen="fish">🐟 Fish</button>
+              <button class="allergen-pill" data-allergen="soy">🫘 Soy</button>
+              <button class="allergen-pill" data-allergen="sesame">🫙 Sesame</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Area -->
+        <div class="demo-result-area" id="demoResultArea">
+          <div class="demo-placeholder" id="demoPlaceholder">
+            <div class="demo-placeholder-icon">🌍</div>
+            <p>Your analysis will appear here.</p>
+            <p class="demo-placeholder-sub">Try "Jollof Rice" or "Injera" above.</p>
+          </div>
+          <div class="demo-result hidden" id="demoResult">
+            <div class="demo-result-header">
+              <div class="demo-result-badge" id="demoResultMode">Food Scan</div>
+              <div class="demo-result-time" id="demoResultTime"></div>
+            </div>
+            <div class="demo-result-body" id="demoResultBody"></div>
+          </div>
+          <div class="demo-error hidden" id="demoError">
+            <div class="demo-error-icon">⚠️</div>
+            <p id="demoErrorMsg">Something went wrong. Check your API key in backend/.env and make sure the backend is running on port 3000.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── API Docs Section ──────────────────────────────── -->
+  <section class="docs-section" id="docs">
+    <div class="container">
+      <div class="section-label">Developer Docs</div>
+      <h2 class="section-title">Integrate in minutes.</h2>
+      <p class="section-subtitle">REST API with full AI context injection. Works with any frontend stack.</p>
+
+      <div class="docs-grid">
+        <div class="docs-endpoints">
+          <h3>API Endpoints</h3>
+          <div class="endpoint-list" id="endpointList">
+            <!-- JS populated -->
+          </div>
+        </div>
+        <div class="docs-code-panel">
+          <div class="code-tabs" id="codeTabs">
+            <button class="code-tab active" data-lang="js">JavaScript</button>
+            <button class="code-tab" data-lang="python">Python</button>
+            <button class="code-tab" data-lang="curl">cURL</button>
+          </div>
+          <div class="code-block-wrap">
+            <button class="copy-btn" id="copyCodeBtn" aria-label="Copy code">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>
+              Copy
+            </button>
+            <pre class="code-block" id="codeBlock"><code id="codeContent"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stack Section ─────────────────────────────────── -->
+  <section class="stack-section">
+    <div class="container">
+      <div class="section-label">Recommended Stack</div>
+      <h2 class="section-title">Built on the best.</h2>
+      <div class="stack-grid">
+        <div class="stack-card">
+          <div class="stack-icon">⚛️</div>
+          <div class="stack-name">React Native</div>
+          <div class="stack-role">iOS + Android</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-icon">▲</div>
+          <div class="stack-name">Next.js</div>
+          <div class="stack-role">Web Frontend</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-icon">🟩</div>
+          <div class="stack-name">Node.js + Express</div>
+          <div class="stack-role">Backend API</div>
+        </div>
+        <div class="stack-card stack-card-highlight">
+          <div class="stack-icon">✦</div>
+          <div class="stack-name">Claude claude-sonnet-4-20250514</div>
+          <div class="stack-role">AI Engine</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-icon">🐘</div>
+          <div class="stack-name">PostgreSQL</div>
+          <div class="stack-role">User Profiles</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-icon">🔴</div>
+          <div class="stack-name">Redis</div>
+          <div class="stack-role">Session Cache</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-icon">🔐</div>
+          <div class="stack-name">Supabase Auth</div>
+          <div class="stack-role">Authentication</div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-icon">☁️</div>
+          <div class="stack-name">AWS S3</div>
+          <div class="stack-role">Image Storage</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────── -->
+  <section class="cta-section">
+    <div class="cta-bg">
+      <div class="cta-orb"></div>
+    </div>
+    <div class="container cta-inner">
+      <div class="cta-badge">Open Source Friendly · MIT License</div>
+      <h2 class="cta-title">Ready to understand every meal?</h2>
+      <p class="cta-subtitle">Add your Anthropic API key and the backend starts in seconds.</p>
+      <div class="cta-code">npm install &amp;&amp; npm run dev</div>
+      <div class="cta-actions">
+        <a href="#demo" class="btn btn-primary btn-xl">Try Demo</a>
+        <a href="https://github.com" class="btn btn-ghost btn-xl" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10Z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 1024 1024">
+          <rect width="1024" height="1024" rx="225" fill="#085041"/>
+          <ellipse cx="512" cy="502" rx="194" ry="266" fill="none" stroke="#5DCAA5" stroke-width="40"/>
+          <circle cx="512" cy="502" r="36" fill="#5DCAA5"/>
+          <path d="M512 369 Q574 328 624 276 Q604 358 552 410 Q594 388 656 388 Q604 432 542 432 Q530 462 512 502 Q494 462 482 432 Q420 432 368 388 Q430 388 472 410 Q420 358 400 276 Q450 328 512 369Z" fill="#EF9F27"/>
+        </svg>
+        <div>
+          <div class="footer-name">safura ai</div>
+          <div class="footer-tagline">"Understand every meal."</div>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#modules">Modules</a>
+        <a href="#demo">Demo</a>
+        <a href="#docs">API Docs</a>
+      </div>
+      <div class="footer-copy">© 2026 Safura AI. Version 1.0.0</div>
+    </div>
+  </footer>
+
+  <script src="src/app.js"></script>
+</body>
+</html>
