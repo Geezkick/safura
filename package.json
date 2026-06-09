@@ -1,0 +1,14 @@
+{
+  "name": "safura-ai",
+  "version": "1.0.0",
+  "description": "Safura AI workspace root",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "npx serve frontend -p 5173",
+    "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "serve": "^14.2.1"
+  }
+}
