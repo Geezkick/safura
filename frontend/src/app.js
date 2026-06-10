@@ -368,17 +368,32 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    let compiled = `I am using the Smart Food Scanner.\n\n`;
-    if (currentScanImage) compiled += `[Image uploaded by user]\n`;
-    if (textInput) compiled += `User description: ${textInput}\n\n`;
+    let textPrompt = `I am using the Smart Food Scanner.\n\n`;
+    if (textInput) textPrompt += `User description: ${textInput}\n\n`;
     
-    compiled += `Please identify this food based on the description/image. Give me full details including:
+    textPrompt += `Please identify this food based on the description/image. Give me full details including:
 1. Exact food name, country of origin, and a brief cultural history of the dish.
 2. Full nutritional breakdown (calories, protein, carbs, fat).
 3. The specific diet type it falls under (e.g., keto-friendly, vegan, etc.).
 4. Is it a warm, cold, or hot dish? How does this temperature specification align with my personal preferences and goals?
 5. Estimate its freshness (is it fresh or does it look bad/spoiled?) based on visual cues.
 6. Finally, definitively state if it is safe for me based on my active allergens.`;
+
+    let contentPayload = [];
+    if (currentScanImage) {
+      // Extract base64 and mime type from data URI
+      const match = currentScanImage.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (match) {
+        contentPayload.push({
+          type: 'image',
+          source: { type: 'base64', media_type: match[1], data: match[2] }
+        });
+      }
+    }
+    contentPayload.push({ type: 'text', text: textPrompt });
+
+    // Store the raw base64 to clear UI safely
+    const storedImage = currentScanImage;
 
     // Reset scanner UI
     document.getElementById('scan-text-input').value = '';
@@ -388,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scannerPlaceholder.classList.remove('hidden');
 
     // Route directly to the AI Chat Modal for real analysis
-    openChatModule('scan', compiled);
+    openChatModule('scan', contentPayload, !!storedImage);
   });
 
   // ── Dynamic Mini-App Form Engine ───────────────────────────
@@ -512,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatHistory = [];
   });
 
-  function openChatModule(mode, autoPrompt = null) {
+  function openChatModule(mode, autoPrompt = null, hasImage = false) {
     const meta = MODULE_META[mode];
     if (!meta) return;
     currentSelectedMode = mode;
@@ -527,8 +542,11 @@ document.addEventListener('DOMContentLoaded', () => {
     chatModal.classList.remove('hidden');
     
     if (autoPrompt) {
-      // Send the structured prompt immediately but display a simplified message to the user
-      addChatMessage('user', "I have submitted the form parameters.");
+      if (hasImage || Array.isArray(autoPrompt)) {
+        addChatMessage('user', "I have submitted a photo and description for analysis.");
+      } else {
+        addChatMessage('user', "I have submitted the form parameters.");
+      }
       chatInput.value = '';
       chatHistory.push({ role: 'user', content: autoPrompt });
       
