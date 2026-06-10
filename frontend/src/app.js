@@ -1,9 +1,9 @@
 /**
  * Safura AI — Premium Mobile PWA Logic
+ * Dynamic Mini-App Engine
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ── Service Worker Registration ─────────────────────────────
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/public/sw.js')
       .then(reg => console.log('SW registered'))
@@ -12,67 +12,117 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const API_URL = 'http://localhost:3000/api';
 
-  // ── Feature Metadata (No Emojis) ────────────────────────────
+  // ── Dynamic Mini-App Configuration ──────────────────────────
   const MODULE_META = {
     scan: { 
       name: 'Food Scanner', 
       desc: 'Identify food and get full nutritional breakdowns instantly.',
-      hint: 'Describe or name a food to scan...',
-      actions: ['Scan from camera', 'Upload food photo', 'Type food name manually']
+      form: [
+        { id: 'food_name', type: 'input', label: 'What food are you looking at?', placeholder: 'e.g., Jollof Rice, Caesar Salad' },
+        { id: 'portion', type: 'select', label: 'Portion Size', options: ['Small', 'Medium (Standard)', 'Large'] }
+      ]
     },
     allergen: { 
       name: 'Allergen Guard', 
       desc: 'Strict safety checks for 14 EU-mandated allergens.',
-      hint: 'Enter a food to check allergens...',
-      actions: ['Check ingredient list', 'Scan barcode', 'Verify menu item']
+      form: [
+        { id: 'ingredient_list', type: 'textarea', label: 'Paste ingredient list or dish name:', placeholder: 'e.g., Peanuts, Soy Sauce, Chicken...' },
+        { id: 'sensitivity', type: 'select', label: 'Sensitivity Level', options: ['Standard', 'High (Anaphylactic Risk)'] }
+      ]
     },
     nutrition: { 
       name: 'Nutrition Coach', 
       desc: 'Personalized daily macro guidance based on your profile.',
-      hint: 'Ask about your daily nutrition...',
-      actions: ['Review daily macros', 'Log a recent meal', 'Get meal suggestions']
+      form: [
+        { id: 'query', type: 'textarea', label: 'What do you need help with?', placeholder: 'e.g., I need a high protein breakfast under 400 calories' }
+      ]
     },
     encyclopedia: { 
       name: 'Global Encyclopedia', 
       desc: 'Deep dive into the cultural origins and significance of global cuisine.',
-      hint: 'Name a dish or cuisine to explore...',
-      actions: ['Discover random cuisine', 'Explore regional dishes', 'Search ingredient origin']
+      form: [
+        { id: 'dish_origin', type: 'input', label: 'Dish or Region', placeholder: 'e.g., Paella, West Africa' }
+      ]
     },
     menu: { 
       name: 'Menu Scanner', 
       desc: 'Translate and analyze restaurant menus for safety and macros.',
-      hint: 'Type or paste menu items...',
-      actions: ['Scan physical menu', 'Paste text menu', 'Translate foreign menu']
+      form: [
+        { id: 'menu_text', type: 'textarea', label: 'Paste menu items here:', placeholder: '1. Pad Thai\n2. Tom Yum Soup...' },
+        { id: 'goal', type: 'select', label: 'Primary Goal', options: ['Allergen Safety', 'Lowest Calories', 'Highest Protein'] }
+      ]
     },
     travel: { 
       name: 'Travel Assistant', 
       desc: 'Navigate your dietary needs safely in foreign countries.',
-      hint: 'What country are you visiting?',
-      actions: ['Get translation cards', 'Find safe local dishes', 'Learn local food customs']
+      form: [
+        { id: 'country', type: 'input', label: 'Destination Country', placeholder: 'e.g., Japan, Italy' },
+        { id: 'request_type', type: 'select', label: 'What do you need?', options: ['Local Safe Dishes', 'Translation Cards', 'Cultural Dining Rules'] }
+      ]
     },
     recipe: { 
       name: 'Recipe Generator', 
       desc: 'Create custom, safe recipes from the ingredients you have.',
-      hint: 'List your ingredients...',
-      actions: ['Generate from pantry', 'Create quick 15-min meal', 'Find allergen-free alternative']
+      form: [
+        { id: 'ingredients', type: 'textarea', label: 'What ingredients do you have?', placeholder: 'e.g., Chicken breast, rice, broccoli...' },
+        { id: 'time', type: 'select', label: 'Max Cooking Time', options: ['15 Minutes', '30 Minutes', '1 Hour', 'Any'] },
+        { id: 'difficulty', type: 'select', label: 'Difficulty', options: ['Easy', 'Medium', 'Masterchef'] }
+      ]
     },
     mealplan: { 
       name: 'Meal Planner', 
-      desc: 'Automated 7-day nutritional planning tailored to your goals.',
-      hint: 'Describe your dietary goals...',
-      actions: ['Generate weekly plan', 'Create budget-friendly plan', 'Build high-protein plan']
+      desc: 'Automated nutritional planning tailored to your goals.',
+      form: [
+        { id: 'days', type: 'select', label: 'Number of Days', options: ['1 Day', '3 Days', '7 Days'] },
+        { id: 'goal', type: 'select', label: 'Primary Goal', options: ['Weight Loss', 'Maintenance', 'Muscle Gain'] },
+        { id: 'meals', type: 'select', label: 'Meals per Day', options: ['3 Meals', '3 Meals + Snacks'] }
+      ]
     },
     freshness: { 
       name: 'Freshness Detector', 
       desc: 'Estimate food spoilage and safety based on visual cues.',
-      hint: 'Describe the food to check...',
-      actions: ['Scan produce', 'Check expiry guidelines', 'How to store properly']
+      form: [
+        { id: 'food', type: 'input', label: 'What is the food?', placeholder: 'e.g., Raw Salmon, Milk' },
+        { id: 'appearance', type: 'textarea', label: 'Describe appearance & smell:', placeholder: 'e.g., smells slightly sour, looks dull' },
+        { id: 'days_stored', type: 'input', label: 'Days stored (optional)', placeholder: 'e.g., 4 days' }
+      ]
     },
     carbon: { 
       name: 'Carbon Footprint', 
       desc: 'Track the sustainability and CO₂ impact of your meals.',
-      hint: 'Enter a food for its CO₂ impact...',
-      actions: ['Check ingredient impact', 'Find sustainable alternatives', 'View daily footprint']
+      form: [
+        { id: 'meal', type: 'input', label: 'What did you eat?', placeholder: 'e.g., Beef Burger with Fries' },
+        { id: 'compare', type: 'select', label: 'Provide Alternatives?', options: ['Yes, suggest greener options', 'No, just the footprint'] }
+      ]
+    },
+    ar: {
+      name: 'AR Vision Mode',
+      desc: 'Get ultra-short, real-time data cards for augmented reality.',
+      form: [
+        { id: 'target', type: 'input', label: 'Target object', placeholder: 'e.g., Apple' }
+      ]
+    },
+    voice: {
+      name: 'Voice Assistant',
+      desc: 'Talk to your personal AI nutritionist.',
+      form: [
+        { id: 'prompt', type: 'textarea', label: 'What would you like to ask?', placeholder: 'Type your question here...' }
+      ]
+    },
+    passport: {
+      name: 'Food Passport',
+      desc: 'Track cuisines you have tried from around the world.',
+      form: [
+        { id: 'new_dish', type: 'input', label: 'What new dish did you try?', placeholder: 'e.g., Kimchi Jjigae' }
+      ]
+    },
+    family: {
+      name: 'Family Profiles',
+      desc: 'Manage complex meal planning for multiple dietary needs.',
+      form: [
+        { id: 'members', type: 'textarea', label: 'Describe family members & needs', placeholder: 'e.g., Me (No Dairy), Son (Nut Allergy)' },
+        { id: 'meal_type', type: 'select', label: 'Meal Type', options: ['Dinner', 'Breakfast', 'Lunch', 'Full Day Plan'] }
+      ]
     }
   };
 
@@ -182,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Profile Safety Toggles ─────────────────────────────────
   function getActiveAllergens() {
     const active = [];
     document.querySelectorAll('.toggle-item').forEach(item => {
@@ -193,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return active;
   }
 
-  // ── Feature Details Slide-in (Nested Flow) ─────────────────
+  // ── Dynamic Mini-App Form Engine ───────────────────────────
   const featureDetailsScreen = document.getElementById('feature-details-screen');
   const featureBackBtn = document.getElementById('feature-back-btn');
   const featureDetailTitle = document.getElementById('feature-detail-title');
@@ -203,58 +252,100 @@ document.addEventListener('DOMContentLoaded', () => {
   const featureActionList = document.getElementById('feature-action-list');
   let currentSelectedMode = null;
 
-  document.querySelectorAll('.module-list-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const mode = item.dataset.mode;
-      const meta = MODULE_META[mode];
-      if (!meta) return;
+  function openFeatureModule(mode) {
+    const meta = MODULE_META[mode];
+    if (!meta) return;
+    currentSelectedMode = mode;
 
-      currentSelectedMode = mode;
-      
-      // Update UI
-      featureDetailTitle.textContent = meta.name;
-      featureDetailName.textContent = meta.name;
-      featureDetailDesc.textContent = meta.desc;
-      featureDetailIcon.innerHTML = item.querySelector('.mod-icon-wrapper').innerHTML;
+    featureDetailTitle.textContent = meta.name;
+    featureDetailName.textContent = meta.name;
+    featureDetailDesc.textContent = meta.desc;
 
-      // Render Options/Actions
-      featureActionList.innerHTML = '';
-      meta.actions.forEach(actionText => {
-        const btn = document.createElement('button');
-        btn.className = 'action-btn';
-        btn.innerHTML = `
-          <span>${actionText}</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        `;
-        btn.addEventListener('click', () => {
-          featureDetailsScreen.classList.remove('open');
-          openChatModule(mode, `I want to: ${actionText}`);
+    // Clone icon from module list item
+    const listItem = document.querySelector(`.module-list-item[data-mode="${mode}"]`);
+    if (listItem) {
+      featureDetailIcon.innerHTML = listItem.querySelector('.mod-icon-wrapper').innerHTML;
+    }
+
+    // Build dynamic form
+    featureActionList.innerHTML = `<form id="dynamic-mini-app-form" class="mini-app-form"></form>`;
+    const formEl = document.getElementById('dynamic-mini-app-form');
+
+    meta.form.forEach(field => {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+      const label = document.createElement('label');
+      label.className = 'form-label';
+      label.textContent = field.label;
+      group.appendChild(label);
+
+      if (field.type === 'select') {
+        const sel = document.createElement('select');
+        sel.className = 'form-select';
+        sel.id = `field_${field.id}`;
+        field.options.forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt; o.textContent = opt;
+          sel.appendChild(o);
         });
-        featureActionList.appendChild(btn);
-      });
-
-      // Also add a manual "Start Chat" option
-      const chatBtn = document.createElement('button');
-      chatBtn.className = 'action-btn';
-      chatBtn.style.background = 'linear-gradient(135deg, rgba(93,202,165,0.1), transparent)';
-      chatBtn.innerHTML = `
-        <span>Start manual chat</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-      `;
-      chatBtn.addEventListener('click', () => {
-        featureDetailsScreen.classList.remove('open');
-        openChatModule(mode, null);
-      });
-      featureActionList.appendChild(chatBtn);
-
-      // Slide in
-      featureDetailsScreen.classList.add('open');
+        group.appendChild(sel);
+      } else if (field.type === 'textarea') {
+        const ta = document.createElement('textarea');
+        ta.className = 'form-textarea';
+        ta.id = `field_${field.id}`;
+        ta.placeholder = field.placeholder || '';
+        ta.required = true;
+        group.appendChild(ta);
+      } else {
+        const inp = document.createElement('input');
+        inp.className = 'form-input';
+        inp.type = 'text';
+        inp.id = `field_${field.id}`;
+        inp.placeholder = field.placeholder || '';
+        group.appendChild(inp);
+      }
+      formEl.appendChild(group);
     });
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.className = 'btn btn-primary full-width';
+    submitBtn.style.marginTop = '0.5rem';
+    submitBtn.textContent = `Analyse with ${meta.name}`;
+    formEl.appendChild(submitBtn);
+
+    formEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let compiled = `I need help with ${meta.name}. My context:\n\n`;
+      meta.form.forEach(f => {
+        const el = document.getElementById(`field_${f.id}`);
+        if (el) compiled += `${f.label}: ${el.value}\n`;
+      });
+      featureDetailsScreen.classList.remove('open');
+      openChatModule(mode, compiled);
+    });
+
+    featureDetailsScreen.classList.add('open');
+  }
+
+  document.querySelectorAll('.module-list-item').forEach(item => {
+    item.addEventListener('click', () => openFeatureModule(item.dataset.mode));
+  });
+
+  // Quick launch buttons on home screen
+  document.querySelectorAll('.quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => openFeatureModule(btn.dataset.mode));
   });
 
   featureBackBtn.addEventListener('click', () => {
     featureDetailsScreen.classList.remove('open');
   });
+
+  // Dynamic date on home screen
+  const dateEl = document.getElementById('home-date');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+  }
 
   // ── AI Chat Modal ──────────────────────────────────────────
   const chatModal   = document.getElementById('chat-modal');
@@ -279,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatHistory = [];
 
     chatTitle.textContent = meta.name;
-    chatInput.placeholder = meta.hint;
+    chatInput.placeholder = 'Type a message...';
     chatBody.innerHTML = '';
     
     addChatMessage('system', `Connected to ${meta.name}. ${meta.desc}`);
@@ -287,8 +378,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chatModal.classList.remove('hidden');
     
     if (autoPrompt) {
-      chatInput.value = autoPrompt;
-      sendChatMessage();
+      // Send the structured prompt immediately but display a simplified message to the user
+      addChatMessage('user', "I have submitted the form parameters.");
+      chatInput.value = '';
+      chatHistory.push({ role: 'user', content: autoPrompt });
+      
+      triggerChatRequest();
     } else {
       chatInput.focus();
     }
@@ -318,14 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) el.remove();
   }
 
-  async function sendChatMessage() {
-    const text = chatInput.value.trim();
-    if (!text || !currentSelectedMode) return;
-
-    addChatMessage('user', text);
-    chatInput.value = '';
-    chatHistory.push({ role: 'user', content: text });
-    
+  async function triggerChatRequest() {
     addLoadingMessage();
     chatSendBtn.disabled = true;
 
@@ -352,6 +440,17 @@ document.addEventListener('DOMContentLoaded', () => {
       chatSendBtn.disabled = false;
       chatInput.focus();
     }
+  }
+
+  async function sendChatMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !currentSelectedMode) return;
+
+    addChatMessage('user', text);
+    chatInput.value = '';
+    chatHistory.push({ role: 'user', content: text });
+    
+    triggerChatRequest();
   }
 
   chatSendBtn.addEventListener('click', sendChatMessage);
