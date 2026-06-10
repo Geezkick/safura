@@ -327,6 +327,84 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       allergenList.innerHTML = '<span class="allergen-badge" style="background:rgba(255,255,255,0.1);color:var(--safura-text-muted);">None set</span>';
     }
+
+    initLiveTrackers(data);
+  }
+
+  // ── Live Trackers Logic ────────────────────────────────────
+  function initLiveTrackers(profile) {
+    // Hydration Tracker
+    // Goal based on weight (kg * 0.033 L). Default 2.5L
+    const waterGoal = profile.weight ? parseFloat((profile.weight * 0.033).toFixed(1)) : 2.5;
+    document.getElementById('water-goal').textContent = `${waterGoal}L`;
+    
+    // Get current water from local storage (reset daily)
+    const todayStr = new Date().toDateString();
+    let hydrationState = JSON.parse(localStorage.getItem('safura_hydration') || '{}');
+    if (hydrationState.date !== todayStr) {
+      hydrationState = { date: todayStr, current: 0 };
+    }
+    
+    function updateWaterUI() {
+      document.getElementById('water-current').textContent = `${hydrationState.current.toFixed(1)}L`;
+      const pct = Math.min(100, (hydrationState.current / waterGoal) * 100);
+      document.getElementById('water-fill').style.width = `${pct}%`;
+      localStorage.setItem('safura_hydration', JSON.stringify(hydrationState));
+    }
+    updateWaterUI();
+
+    document.getElementById('add-water-btn').onclick = () => {
+      hydrationState.current += 0.25; // add 250ml per click
+      updateWaterUI();
+    };
+
+    // Meal Tracker
+    // Default to 4 hour intervals
+    const MEAL_INTERVAL_MS = 4 * 60 * 60 * 1000;
+    let nextMealTime = parseInt(localStorage.getItem('safura_next_meal') || '0');
+    
+    if (!nextMealTime || nextMealTime < Date.now()) {
+      // If no next meal or it's in the past, set to exactly 4 hours from now
+      nextMealTime = Date.now() + MEAL_INTERVAL_MS;
+      localStorage.setItem('safura_next_meal', nextMealTime.toString());
+    }
+
+    const getMealName = () => {
+      const hr = new Date(nextMealTime).getHours();
+      if (hr < 11) return 'Breakfast';
+      if (hr < 16) return 'Lunch';
+      if (hr < 21) return 'Dinner';
+      return 'Late Snack';
+    };
+
+    const mealTypeEl = document.getElementById('meal-type');
+    const mealCountdownEl = document.getElementById('meal-countdown');
+    mealTypeEl.textContent = getMealName();
+
+    function updateMealTimer() {
+      const now = Date.now();
+      const diff = nextMealTime - now;
+      if (diff <= 0) {
+        mealCountdownEl.textContent = "00:00:00";
+        mealTypeEl.textContent = "Time to Eat!";
+        return;
+      }
+      
+      const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+      const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+      const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+      mealCountdownEl.textContent = `${h}:${m}:${s}`;
+    }
+
+    setInterval(updateMealTimer, 1000);
+    updateMealTimer();
+
+    document.getElementById('log-meal-btn').onclick = () => {
+      nextMealTime = Date.now() + MEAL_INTERVAL_MS;
+      localStorage.setItem('safura_next_meal', nextMealTime.toString());
+      mealTypeEl.textContent = getMealName();
+      updateMealTimer();
+    };
   }
 
   function getActiveAllergens() {

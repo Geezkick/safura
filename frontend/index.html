@@ -259,6 +259,40 @@
             </div>
           </div>
 
+          <!-- Live Trackers -->
+          <div class="section-header mt-3">
+            <h3 class="section-heading">Live Trackers</h3>
+          </div>
+          <div class="tracker-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <!-- Hydration Meter -->
+            <div class="tracker-card" style="background: var(--safura-surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; color: #38bdf8; font-weight: 600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                <span style="color:var(--safura-text)">Hydration</span>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 1rem; overflow: hidden;">
+                <div id="water-fill" style="height: 100%; width: 0%; background: #38bdf8; transition: width 0.3s ease;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <div><strong id="water-current">0L</strong> <span style="color:var(--safura-text-muted)">/ <span id="water-goal">0L</span></span></div>
+                <button id="add-water-btn" style="background: rgba(56,189,248,0.2); color: #38bdf8; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+              </div>
+            </div>
+
+            <!-- Meal Timer -->
+            <div class="tracker-card" style="background: var(--safura-surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #EF9F27; font-weight: 600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span style="color:var(--safura-text)">Next Meal</span>
+              </div>
+              <div id="meal-countdown" style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">--:--:--</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                <span id="meal-type" style="color:var(--safura-text-muted)">--</span>
+                <button id="log-meal-btn" style="background: rgba(239,159,39,0.2); color: #EF9F27; border: none; padding: 0.3rem 0.6rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Log</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Quick Launch Row -->
           <div class="section-header mt-3">
             <h3 class="section-heading">Quick Actions</h3>
