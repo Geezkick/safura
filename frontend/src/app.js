@@ -335,14 +335,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Smart Scanner Logic ────────────────────────────────────
-  const scanPhotoInput = document.getElementById('scan-photo-input');
+  const scanCameraInput = document.getElementById('scan-camera-input');
+  const scanUploadInput = document.getElementById('scan-upload-input');
   const scanPreview = document.getElementById('scan-preview');
   const scannerPlaceholder = document.getElementById('scanner-placeholder');
   let currentScanImage = null;
 
-  document.getElementById('scan-upload-area').addEventListener('click', () => scanPhotoInput.click());
-
-  scanPhotoInput.addEventListener('change', (e) => {
+  function handleImageInput(e) {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -354,12 +353,18 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       reader.readAsDataURL(file);
     }
-  });
+  }
+
+  document.getElementById('btn-live-scan').addEventListener('click', () => scanCameraInput.click());
+  document.getElementById('btn-upload-photo').addEventListener('click', () => scanUploadInput.click());
+
+  scanCameraInput.addEventListener('change', handleImageInput);
+  scanUploadInput.addEventListener('change', handleImageInput);
 
   document.getElementById('scan-analyse-btn').addEventListener('click', () => {
     const textInput = document.getElementById('scan-text-input').value;
     if (!currentScanImage && !textInput) {
-      alert("Please provide an image or type a food name to scan.");
+      alert("Please capture an image, upload a photo, or type a food name to scan.");
       return;
     }
     
@@ -368,11 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (textInput) compiled += `User description: ${textInput}\n\n`;
     
     compiled += `Please identify this food based on the description/image. Give me full details including:
-1. Exact food name and country of origin.
+1. Exact food name, country of origin, and a brief cultural history of the dish.
 2. Full nutritional breakdown (calories, protein, carbs, fat).
 3. The specific diet type it falls under (e.g., keto-friendly, vegan, etc.).
 4. Is it a warm, cold, or hot dish? How does this temperature specification align with my personal preferences and goals?
-5. Finally, definitively state if it is safe for me based on my active allergens.`;
+5. Estimate its freshness (is it fresh or does it look bad/spoiled?) based on visual cues.
+6. Finally, definitively state if it is safe for me based on my active allergens.`;
 
     // Reset scanner UI
     document.getElementById('scan-text-input').value = '';

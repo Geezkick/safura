@@ -341,14 +341,24 @@
           <div class="header"><h1>Food Scanner</h1></div>
           
           <div class="scanner-card">
-            <div class="scanner-upload-area" id="scan-upload-area">
-              <input type="file" accept="image/*" capture="environment" id="scan-photo-input" hidden />
+            <div class="scanner-upload-area" id="scan-upload-area" style="aspect-ratio: 16/9; margin-bottom: 1rem;">
               <div class="scanner-placeholder" id="scanner-placeholder">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                <span>Tap to upload food photo</span>
-                <span class="scanner-sub">or use the text input below</span>
+                <span>No image selected</span>
               </div>
               <img id="scan-preview" class="scan-preview hidden" alt="Food" />
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+              <input type="file" accept="image/*" capture="environment" id="scan-camera-input" hidden />
+              <button class="btn btn-secondary full-width" id="btn-live-scan" style="flex: 1; font-size: 0.9rem; padding: 0.8rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem; vertical-align: text-bottom;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Live Scan
+              </button>
+              
+              <input type="file" accept="image/*" id="scan-upload-input" hidden />
+              <button class="btn btn-secondary full-width" id="btn-upload-photo" style="flex: 1; font-size: 0.9rem; padding: 0.8rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem; vertical-align: text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Upload
+              </button>
             </div>
           </div>
 
