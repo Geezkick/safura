@@ -44,14 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'dish_origin', type: 'input', label: 'Dish or Region', placeholder: 'e.g., Paella, West Africa' }
       ]
     },
-    menu: { 
-      name: 'Menu Scanner', 
-      desc: 'Translate and analyze restaurant menus for safety and macros.',
-      form: [
-        { id: 'menu_text', type: 'textarea', label: 'Paste menu items here:', placeholder: '1. Pad Thai\n2. Tom Yum Soup...' },
-        { id: 'goal', type: 'select', label: 'Primary Goal', options: ['Allergen Safety', 'Lowest Calories', 'Highest Protein'] }
-      ]
-    },
     travel: { 
       name: 'Travel Assistant', 
       desc: 'Navigate your dietary needs safely in foreign countries.',
@@ -78,50 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'meals', type: 'select', label: 'Meals per Day', options: ['3 Meals', '3 Meals + Snacks'] }
       ]
     },
-    freshness: { 
-      name: 'Freshness Detector', 
-      desc: 'Estimate food spoilage and safety based on visual cues.',
-      form: [
-        { id: 'food', type: 'input', label: 'What is the food?', placeholder: 'e.g., Raw Salmon, Milk' },
-        { id: 'appearance', type: 'textarea', label: 'Describe appearance & smell:', placeholder: 'e.g., smells slightly sour, looks dull' },
-        { id: 'days_stored', type: 'input', label: 'Days stored (optional)', placeholder: 'e.g., 4 days' }
-      ]
-    },
     carbon: { 
       name: 'Carbon Footprint', 
       desc: 'Track the sustainability and CO₂ impact of your meals.',
       form: [
         { id: 'meal', type: 'input', label: 'What did you eat?', placeholder: 'e.g., Beef Burger with Fries' },
         { id: 'compare', type: 'select', label: 'Provide Alternatives?', options: ['Yes, suggest greener options', 'No, just the footprint'] }
-      ]
-    },
-    ar: {
-      name: 'AR Vision Mode',
-      desc: 'Get ultra-short, real-time data cards for augmented reality.',
-      form: [
-        { id: 'target', type: 'input', label: 'Target object', placeholder: 'e.g., Apple' }
-      ]
-    },
-    voice: {
-      name: 'Voice Assistant',
-      desc: 'Talk to your personal AI nutritionist.',
-      form: [
-        { id: 'prompt', type: 'textarea', label: 'What would you like to ask?', placeholder: 'Type your question here...' }
-      ]
-    },
-    passport: {
-      name: 'Food Passport',
-      desc: 'Track cuisines you have tried from around the world.',
-      form: [
-        { id: 'new_dish', type: 'input', label: 'What new dish did you try?', placeholder: 'e.g., Kimchi Jjigae' }
-      ]
-    },
-    family: {
-      name: 'Family Profiles',
-      desc: 'Manage complex meal planning for multiple dietary needs.',
-      form: [
-        { id: 'members', type: 'textarea', label: 'Describe family members & needs', placeholder: 'e.g., Me (No Dairy), Son (Nut Allergy)' },
-        { id: 'meal_type', type: 'select', label: 'Meal Type', options: ['Dinner', 'Breakfast', 'Lunch', 'Full Day Plan'] }
       ]
     }
   };
@@ -130,7 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const views = {
     splash: document.getElementById('splash-screen'),
     auth:   document.getElementById('auth-screen'),
-    main:   document.getElementById('main-shell')
+    main:   document.getElementById('main-shell'),
+    onboarding: document.getElementById('onboarding-screen')
   };
 
   const setAppView = (viewName) => {
@@ -173,7 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('safura_token', data.token);
         localStorage.setItem('safura_user', JSON.stringify(data.user));
         document.getElementById('user-name').textContent = data.user.name.split(' ')[0];
-        setAppView('main');
+        if (localStorage.getItem('safura_profile')) {
+          initProfile();
+          setAppView('main');
+        } else {
+          setAppView('onboarding');
+        }
       } else {
         errEl.textContent = data.error || 'Authentication failed';
       }
@@ -193,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('safura_token', data.token);
         localStorage.setItem('safura_user', JSON.stringify(data.user));
         document.getElementById('user-name').textContent = data.user.name.split(' ')[0];
-        setAppView('main');
+        setAppView('onboarding');
       } else {
         errEl.textContent = data.error || 'Registration failed';
       }
@@ -212,7 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const user  = JSON.parse(localStorage.getItem('safura_user') || 'null');
     if (token && user) {
       document.getElementById('user-name').textContent = user.name.split(' ')[0];
-      setAppView('main');
+      if (localStorage.getItem('safura_profile')) {
+        initProfile();
+        setAppView('main');
+      } else {
+        setAppView('onboarding');
+      }
     } else {
       setAppView('auth');
     }
@@ -232,15 +197,193 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  function getActiveAllergens() {
-    const active = [];
-    document.querySelectorAll('.toggle-item').forEach(item => {
-      const checkbox = item.querySelector('input[type="checkbox"]');
-      const label = item.querySelector('.toggle-label').textContent;
-      if (checkbox.checked) active.push(label);
+  // ── Onboarding Logic ────────────────────────────────────────
+  let currentStep = 1;
+  const totalSteps = 6;
+  const obNextBtn = document.getElementById('ob-next');
+  const obBackBtn = document.getElementById('ob-back');
+  const profileData = { allergens: [] };
+
+  // Setup options
+  document.querySelectorAll('.goal-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.target.parentElement.querySelectorAll('.goal-option').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
     });
-    return active;
+  });
+
+  // Photo upload
+  const obPhotoInput = document.getElementById('ob-photo');
+  const photoPreview = document.getElementById('photo-preview');
+  const photoPlaceholder = document.getElementById('photo-placeholder');
+  document.getElementById('photo-upload-area').addEventListener('click', () => obPhotoInput.click());
+  
+  obPhotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        profileData.photo = e.target.result;
+        photoPreview.src = e.target.result;
+        photoPreview.classList.remove('hidden');
+        photoPlaceholder.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function updateOnboarding() {
+    document.querySelectorAll('.onboard-step').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.onboard-step[data-step="${currentStep}"]`).classList.add('active');
+    document.getElementById('step-num').textContent = currentStep;
+    document.getElementById('onboard-bar').style.width = `${(currentStep / totalSteps) * 100}%`;
+    
+    obBackBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+    obNextBtn.textContent = currentStep === totalSteps ? 'Finish & Save' : 'Continue';
   }
+
+  obNextBtn.addEventListener('click', () => {
+    if (currentStep === 1) {
+      profileData.age = document.getElementById('ob-age').value || 25;
+      profileData.gender = document.getElementById('ob-gender').value;
+    } else if (currentStep === 2) {
+      profileData.height = document.getElementById('ob-height').value || 170;
+      profileData.weight = document.getElementById('ob-weight').value || 70;
+      profileData.targetWeight = document.getElementById('ob-target-weight').value || profileData.weight;
+    } else if (currentStep === 3) {
+      profileData.goal = document.querySelector('.onboard-step[data-step="3"] .goal-option.active').dataset.goal;
+    } else if (currentStep === 4) {
+      profileData.diet = document.querySelector('.onboard-step[data-step="4"] .goal-option.active').dataset.diet;
+    } else if (currentStep === 5) {
+      profileData.allergens = [];
+      document.querySelectorAll('.onboard-step[data-step="5"] input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) profileData.allergens.push(cb.dataset.allergen);
+      });
+    }
+
+    if (currentStep < totalSteps) {
+      currentStep++;
+      updateOnboarding();
+    } else {
+      // Save and finish
+      localStorage.setItem('safura_profile', JSON.stringify(profileData));
+      initProfile();
+      setAppView('main');
+    }
+  });
+
+  obBackBtn.addEventListener('click', () => {
+    if (currentStep > 1) {
+      currentStep--;
+      updateOnboarding();
+    }
+  });
+
+  document.getElementById('edit-profile-btn').addEventListener('click', () => {
+    setAppView('onboarding');
+  });
+
+  document.getElementById('logout-btn-profile').addEventListener('click', () => {
+    localStorage.removeItem('safura_token');
+    localStorage.removeItem('safura_user');
+    setAppView('auth');
+  });
+
+  function initProfile() {
+    const data = JSON.parse(localStorage.getItem('safura_profile') || '{}');
+    const user = JSON.parse(localStorage.getItem('safura_user') || '{"name":"User"}');
+    
+    document.getElementById('profile-display-name').textContent = user.name;
+    document.getElementById('prof-height').textContent = data.height ? `${data.height} cm` : '—';
+    document.getElementById('prof-weight').textContent = data.weight ? `${data.weight} kg` : '—';
+    
+    if (data.height && data.weight) {
+      const h = data.height / 100;
+      const bmi = (data.weight / (h * h)).toFixed(1);
+      document.getElementById('prof-bmi').textContent = bmi;
+    }
+
+    document.getElementById('prof-age').textContent = data.age || '—';
+    document.getElementById('prof-diet').textContent = data.diet ? data.diet.charAt(0).toUpperCase() + data.diet.slice(1) : '—';
+    document.getElementById('prof-gender').textContent = data.gender || '—';
+    document.getElementById('prof-target').textContent = data.targetWeight ? `${data.targetWeight} kg` : '—';
+    
+    const goalMap = { lose: 'Weight Loss', maintain: 'Maintenance', gain: 'Muscle Gain' };
+    document.getElementById('profile-goal-label').textContent = `Goal: ${data.goal ? goalMap[data.goal] : '—'}`;
+
+    if (data.photo) {
+      const img = document.getElementById('profile-photo');
+      img.src = data.photo;
+      img.style.display = 'block';
+      document.getElementById('profile-avatar-fallback').style.display = 'none';
+      
+      const homeImg = document.querySelector('.avatar');
+      if (homeImg) homeImg.style.backgroundImage = `url(${data.photo})`;
+    }
+
+    const allergenList = document.getElementById('profile-allergen-list');
+    if (data.allergens && data.allergens.length > 0) {
+      allergenList.innerHTML = data.allergens.map(a => `<span class="allergen-badge">${a}</span>`).join('');
+    } else {
+      allergenList.innerHTML = '<span class="allergen-badge" style="background:rgba(255,255,255,0.1);color:var(--safura-text-muted);">None set</span>';
+    }
+  }
+
+  function getActiveAllergens() {
+    const data = JSON.parse(localStorage.getItem('safura_profile') || '{"allergens":[]}');
+    return data.allergens;
+  }
+
+  // ── Smart Scanner Logic ────────────────────────────────────
+  const scanPhotoInput = document.getElementById('scan-photo-input');
+  const scanPreview = document.getElementById('scan-preview');
+  const scannerPlaceholder = document.getElementById('scanner-placeholder');
+  let currentScanImage = null;
+
+  document.getElementById('scan-upload-area').addEventListener('click', () => scanPhotoInput.click());
+
+  scanPhotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentScanImage = e.target.result;
+        scanPreview.src = e.target.result;
+        scanPreview.classList.remove('hidden');
+        scannerPlaceholder.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById('scan-analyse-btn').addEventListener('click', () => {
+    const textInput = document.getElementById('scan-text-input').value;
+    if (!currentScanImage && !textInput) {
+      alert("Please provide an image or type a food name to scan.");
+      return;
+    }
+    
+    let compiled = `I am using the Smart Food Scanner.\n\n`;
+    if (currentScanImage) compiled += `[Image uploaded by user]\n`;
+    if (textInput) compiled += `User description: ${textInput}\n\n`;
+    
+    compiled += `Please identify this food based on the description/image. Give me full details including:
+1. Exact food name and country of origin.
+2. Full nutritional breakdown (calories, protein, carbs, fat).
+3. The specific diet type it falls under (e.g., keto-friendly, vegan, etc.).
+4. Is it a warm, cold, or hot dish? How does this temperature specification align with my personal preferences and goals?
+5. Finally, definitively state if it is safe for me based on my active allergens.`;
+
+    // Reset scanner UI
+    document.getElementById('scan-text-input').value = '';
+    currentScanImage = null;
+    scanPreview.src = '';
+    scanPreview.classList.add('hidden');
+    scannerPlaceholder.classList.remove('hidden');
+
+    // Route directly to the AI Chat Modal for real analysis
+    openChatModule('scan', compiled);
+  });
 
   // ── Dynamic Mini-App Form Engine ───────────────────────────
   const featureDetailsScreen = document.getElementById('feature-details-screen');
@@ -418,13 +561,26 @@ document.addEventListener('DOMContentLoaded', () => {
     chatSendBtn.disabled = true;
 
     try {
+      let systemContext = `Active mode: ${currentSelectedMode}\n`;
+      const profile = JSON.parse(localStorage.getItem('safura_profile') || '{}');
+      
+      if (profile.allergens && profile.allergens.length > 0) {
+        systemContext += `CRITICAL: User is strictly allergic to: ${profile.allergens.join(', ')}.\n`;
+      }
+      
+      systemContext += `User Profile Context:\n`;
+      if (profile.goal) systemContext += `- Goal: ${profile.goal}\n`;
+      if (profile.diet) systemContext += `- Dietary Preference: ${profile.diet}\n`;
+      if (profile.height) systemContext += `- Height: ${profile.height} cm\n`;
+      if (profile.weight) systemContext += `- Weight: ${profile.weight} kg\n`;
+      if (profile.targetWeight) systemContext += `- Target Weight: ${profile.targetWeight} kg\n`;
+      if (profile.age) systemContext += `- Age: ${profile.age}\n`;
+      if (profile.gender) systemContext += `- Gender: ${profile.gender}\n`;
+
       const data = await apiPost('/chat', {
         mode: currentSelectedMode,
         messages: chatHistory,
-        userProfile: {
-          allergens: getActiveAllergens(),
-          goals: 'general wellness'
-        }
+        systemContext: systemContext
       });
       removeLoadingMessage();
       if (data.success) {

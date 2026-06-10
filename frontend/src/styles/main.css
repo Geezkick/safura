@@ -1276,162 +1276,305 @@ input:checked + .slider:before {
 
 .hidden { display: none !important; }
 
-/* ── Camera UI ── */
-.camera-ui {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
+/* ── Health Onboarding ── */
+.onboarding-view {
+  background: var(--safura-bg);
+  padding: env(safe-area-inset-top) 1.5rem calc(env(safe-area-inset-bottom) + 2rem) 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
 }
 
-.camera-viewfinder {
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 85%;
-  height: 60%;
-  border: 1.5px dashed rgba(255,255,255,0.2);
-  border-radius: 24px;
-}
-
-.corners {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border: 5px solid var(--safura-secondary);
-  border-radius: 12px;
-}
-.top-left { top: -3px; left: -3px; border-right: none; border-bottom: none; border-top-left-radius: 24px; }
-.top-right { top: -3px; right: -3px; border-left: none; border-bottom: none; border-top-right-radius: 24px; }
-.bottom-left { bottom: -3px; left: -3px; border-right: none; border-top: none; border-bottom-left-radius: 24px; }
-.bottom-right { bottom: -3px; right: -3px; border-left: none; border-top: none; border-bottom-right-radius: 24px; }
-
-.scan-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: var(--safura-secondary);
-  box-shadow: 0 0 15px var(--safura-secondary);
-  animation: scan 2s linear infinite alternate;
-}
-
-@keyframes scan {
-  0% { top: 5%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { top: 95%; opacity: 0; }
-}
-
-.scan-hint {
-  position: absolute;
-  bottom: -50px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  color: white;
-  font-size: 0.95rem;
-  font-weight: 500;
-  background: rgba(0,0,0,0.5);
-  padding: 0.5rem;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-}
-
-.camera-controls {
-  padding: 3rem 2rem calc(env(safe-area-inset-bottom) + 3rem) 2rem;
+.onboard-container {
+  flex: 1;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  flex-direction: column;
+  position: relative;
 }
 
-.cam-btn {
+.onboard-progress {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  margin-top: 1rem;
+  overflow: hidden;
+}
+
+.onboard-bar {
+  height: 100%;
+  background: var(--safura-secondary);
+  transition: width 0.3s ease;
+}
+
+.onboard-step-counter {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--safura-text-muted);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.onboard-step {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  padding-top: 2rem;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.onboard-step.active {
+  display: flex;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.onboard-step h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.onboard-sub {
+  color: var(--safura-text-muted);
+  margin-bottom: 2rem;
+}
+
+.goal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.goal-option {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1.25rem;
+  border-radius: 16px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.goal-option.active {
+  background: rgba(93,202,165,0.15);
+  border-color: var(--safura-secondary);
+}
+
+.photo-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.photo-placeholder {
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  border: none;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed rgba(255,255,255,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--safura-text-muted);
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.photo-placeholder span {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.photo-preview {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--safura-secondary);
+}
+
+.onboard-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  gap: 1rem;
+}
+
+.onboard-nav .btn {
+  flex: 1;
+}
+
+/* ── Smart Scanner ── */
+.scanner-card {
+  background: var(--safura-surface);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.scanner-upload-area {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 2px dashed rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.2s;
 }
 
-.cam-btn.primary {
-  width: 80px;
-  height: 80px;
-  background: transparent;
-  border: 4px solid white;
+.scanner-upload-area:active {
+  background: rgba(255,255,255,0.06);
 }
 
-.cam-btn.primary::after {
-  content: '';
-  width: 64px;
-  height: 64px;
-  background: white;
-  border-radius: 50%;
-  transition: transform 0.1s;
+.scanner-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--safura-text-muted);
+  gap: 0.75rem;
 }
 
-.cam-btn.primary:active::after {
-  transform: scale(0.85);
+.scanner-placeholder span {
+  font-weight: 600;
+  color: var(--safura-text);
 }
 
-.cam-btn.secondary {
-  width: 52px;
-  height: 52px;
-  background: rgba(255,255,255,0.15);
-  color: white;
-  font-size: 1.25rem;
-  backdrop-filter: blur(10px);
+.scanner-sub {
+  font-size: 0.85rem;
+  font-weight: 400 !important;
 }
 
-.cam-btn.secondary:active {
-  transform: scale(0.9);
-  background: rgba(255,255,255,0.25);
-}
-
-.scan-modal {
+.scan-preview {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.scan-result-panel {
+  background: var(--safura-surface);
+  border: 1px solid rgba(93,202,165,0.2);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  animation: slideUp 0.3s ease;
+}
+
+.scan-result-header {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--safura-secondary);
+}
+
+/* ── Profile Health Dashboard ── */
+.profile-hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(180deg, var(--safura-surface), var(--safura-bg));
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 28px;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar-wrap {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  position: relative;
+  border: 3px solid var(--safura-surface-elevated);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.profile-avatar {
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  z-index: 100;
-  display: flex;
-  align-items: flex-end;
+  border-radius: 50%;
+  object-fit: cover;
+  display: none;
 }
-.scan-modal-content {
-  background: var(--safura-surface);
+
+.profile-avatar-fallback {
   width: 100%;
-  height: 80%;
-  border-radius: 32px 32px 0 0;
-  padding: 2.5rem 1.5rem;
-  overflow-y: auto;
-  position: relative;
-  transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  height: 100%;
+  border-radius: 50%;
+  background: var(--safura-surface-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--safura-text-muted);
 }
-.scan-modal-content::before {
-  content: '';
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 4px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 2px;
+
+.health-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
-.scan-modal:not(.hidden) .scan-modal-content {
-  transform: translateY(0);
+
+.health-stat {
+  background: var(--safura-surface);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+
+.health-stat-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.health-stat-lbl {
+  font-size: 0.75rem;
+  color: var(--safura-text-muted);
+}
+
+.profile-allergen-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.allergen-badge {
+  background: rgba(239,68,68,0.15);
+  color: #EF4444;
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.profile-pref-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.profile-pref-row:last-child {
+  border-bottom: none;
+}
+.pref-val {
+  font-weight: 600;
 }
