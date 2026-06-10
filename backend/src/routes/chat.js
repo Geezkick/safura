@@ -1,10 +1,28 @@
 const express = require('express');
 const { ask } = require('../services/claude');
-const { MASTER, NUTRITION, ALLERGEN } = require('../config/prompts');
+const prompts = require('../config/prompts');
 
 const router = express.Router();
 
-// POST /api/chat  — AI nutritionist conversation
+// Map frontend mode names → prompt keys
+const MODE_MAP = {
+  scan:         prompts.SCANNER,
+  allergen:     prompts.ALLERGEN,
+  nutrition:    prompts.NUTRITION,
+  encyclopedia: prompts.ENCYCLOPEDIA,
+  menu:         prompts.MENU,
+  travel:       prompts.TRAVEL,
+  recipe:       prompts.RECIPE,
+  mealplan:     prompts.MEALPLAN,
+  freshness:    prompts.FRESHNESS,
+  ar:           prompts.SCANNER,    // AR uses scanner data format
+  voice:        prompts.VOICE,
+  passport:     prompts.PASSPORT,
+  family:       prompts.FAMILY,
+  carbon:       prompts.CARBON
+};
+
+// POST /api/chat  — Universal AI conversation for all 14 modules
 router.post('/', async (req, res) => {
   try {
     const { messages, userProfile, mode } = req.body;
@@ -12,17 +30,16 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'messages array is required' });
     }
 
-    // Append mode-specific module to system prompt
-    let modePrompt = '';
-    if (mode === 'nutrition') modePrompt = '\n\n' + NUTRITION;
-    if (mode === 'allergen')  modePrompt = '\n\n' + ALLERGEN;
-
-    const systemWithProfile = MASTER + modePrompt + `\n\n## Current User Profile\n${JSON.stringify(userProfile || {}, null, 2)}`;
+    // Inject the correct module prompt based on the mode
+    const modePrompt = MODE_MAP[mode] || '';
+    const systemWithProfile = prompts.MASTER 
+      + (modePrompt ? '\n\n' + modePrompt : '') 
+      + `\n\n## Current User Profile\n${JSON.stringify(userProfile || {}, null, 2)}`;
 
     const result = await ask({
       system: systemWithProfile,
       messages,
-      maxTokens: 2048
+      maxTokens: 4096
     });
 
     res.json({ success: true, result });

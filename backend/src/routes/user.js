@@ -1,10 +1,70 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
 // In-memory store (replace with PostgreSQL in production)
+const users = {}; // Map of email -> user details
 const profiles = {};
 const mealLogs = {};
+
+const JWT_SECRET = process.env.JWT_SECRET || 'safura-change-this-secret-in-production';
+
+// POST /api/user/register
+router.post('/register', async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Email, password, and name are required' });
+    }
+    if (users[email]) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Simple id generation
+    const userId = 'usr_' + Date.now().toString(36);
+    
+    users[email] = { id: userId, email, password: hashedPassword, name };
+    profiles[userId] = { name, email, allergens: [] };
+    
+    const token = jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '7d' });
+    
+    res.json({ success: true, token, user: { id: userId, email, name } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/user/login
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    
+    const user = users[email];
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+    
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+    
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    
+    res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // GET /api/user/profile/:id
 router.get('/profile/:id', (req, res) => {

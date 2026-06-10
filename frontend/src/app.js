@@ -1,303 +1,424 @@
 /**
- * Safura AI — Frontend Logic
+ * Safura AI — Premium Mobile PWA Logic
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ── Navbar Scroll Effect ───────────────────────────────────────
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 20) {
-      nav.classList.add('scrolled');
-    } else {
-      nav.classList.remove('scrolled');
+  // ── Service Worker Registration ─────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/public/sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.error('SW error', err));
+  }
+
+  const API_URL = 'http://localhost:3000/api';
+
+  // ── Feature Metadata (No Emojis) ────────────────────────────
+  const MODULE_META = {
+    scan: { 
+      name: 'Food Scanner', 
+      desc: 'Identify food and get full nutritional breakdowns instantly.',
+      hint: 'Describe or name a food to scan...',
+      actions: ['Scan from camera', 'Upload food photo', 'Type food name manually']
+    },
+    allergen: { 
+      name: 'Allergen Guard', 
+      desc: 'Strict safety checks for 14 EU-mandated allergens.',
+      hint: 'Enter a food to check allergens...',
+      actions: ['Check ingredient list', 'Scan barcode', 'Verify menu item']
+    },
+    nutrition: { 
+      name: 'Nutrition Coach', 
+      desc: 'Personalized daily macro guidance based on your profile.',
+      hint: 'Ask about your daily nutrition...',
+      actions: ['Review daily macros', 'Log a recent meal', 'Get meal suggestions']
+    },
+    encyclopedia: { 
+      name: 'Global Encyclopedia', 
+      desc: 'Deep dive into the cultural origins and significance of global cuisine.',
+      hint: 'Name a dish or cuisine to explore...',
+      actions: ['Discover random cuisine', 'Explore regional dishes', 'Search ingredient origin']
+    },
+    menu: { 
+      name: 'Menu Scanner', 
+      desc: 'Translate and analyze restaurant menus for safety and macros.',
+      hint: 'Type or paste menu items...',
+      actions: ['Scan physical menu', 'Paste text menu', 'Translate foreign menu']
+    },
+    travel: { 
+      name: 'Travel Assistant', 
+      desc: 'Navigate your dietary needs safely in foreign countries.',
+      hint: 'What country are you visiting?',
+      actions: ['Get translation cards', 'Find safe local dishes', 'Learn local food customs']
+    },
+    recipe: { 
+      name: 'Recipe Generator', 
+      desc: 'Create custom, safe recipes from the ingredients you have.',
+      hint: 'List your ingredients...',
+      actions: ['Generate from pantry', 'Create quick 15-min meal', 'Find allergen-free alternative']
+    },
+    mealplan: { 
+      name: 'Meal Planner', 
+      desc: 'Automated 7-day nutritional planning tailored to your goals.',
+      hint: 'Describe your dietary goals...',
+      actions: ['Generate weekly plan', 'Create budget-friendly plan', 'Build high-protein plan']
+    },
+    freshness: { 
+      name: 'Freshness Detector', 
+      desc: 'Estimate food spoilage and safety based on visual cues.',
+      hint: 'Describe the food to check...',
+      actions: ['Scan produce', 'Check expiry guidelines', 'How to store properly']
+    },
+    carbon: { 
+      name: 'Carbon Footprint', 
+      desc: 'Track the sustainability and CO₂ impact of your meals.',
+      hint: 'Enter a food for its CO₂ impact...',
+      actions: ['Check ingredient impact', 'Find sustainable alternatives', 'View daily footprint']
     }
-  });
-
-  // ── Mobile Menu Toggle ─────────────────────────────────────────
-  const mobileBtn = document.getElementById('navMobileBtn');
-  const mobileMenu = document.getElementById('navMobileMenu');
-  
-  if(mobileBtn && mobileMenu) {
-    mobileBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('active');
-    });
-    
-    // Close mobile menu when a link is clicked
-    const mobileLinks = mobileMenu.querySelectorAll('.nav-mobile-link');
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-      });
-    });
-  }
-
-
-  // ── Populate Modules Grid ──────────────────────────────────────
-  const modulesData = [
-    { num: '01', name: 'Food Scanner' },
-    { num: '02', name: 'Allergen Guard' },
-    { num: '03', name: 'Nutrition Coach' },
-    { num: '04', name: 'Global Encyclopedia' },
-    { num: '05', name: 'Menu Scanner' },
-    { num: '06', name: 'Travel Assistant' },
-    { num: '07', name: 'Recipe Generator' },
-    { num: '08', name: 'Meal Planner' },
-    { num: '09', name: 'Freshness Detector' },
-    { num: '10', name: 'AR Vision Mode' },
-    { num: '11', name: 'Voice Assistant' },
-    { num: '12', name: 'Food Passport' },
-    { num: '13', name: 'Family Profiles' },
-    { num: '14', name: 'Carbon Footprint' }
-  ];
-
-  const modulesGrid = document.getElementById('modulesGrid');
-  if(modulesGrid) {
-    modulesData.forEach(mod => {
-      const el = document.createElement('div');
-      el.className = 'module-card';
-      el.innerHTML = `
-        <div class="module-num">${mod.num}</div>
-        <div class="module-name">${mod.name}</div>
-      `;
-      modulesGrid.appendChild(el);
-    });
-  }
-
-  // ── Demo Section Logic ─────────────────────────────────────────
-  const demoTabs = document.querySelectorAll('.demo-tab');
-  const demoInput = document.getElementById('demoInput');
-  const demoSubmit = document.getElementById('demoSubmit');
-  const demoSubmitLabel = document.getElementById('demoSubmitLabel');
-  const demoSpinner = document.getElementById('demoSpinner');
-  const demoInputIcon = document.getElementById('demoInputIcon');
-  
-  const demoResultArea = document.getElementById('demoResultArea');
-  const demoPlaceholder = document.getElementById('demoPlaceholder');
-  const demoResult = document.getElementById('demoResult');
-  const demoResultMode = document.getElementById('demoResultMode');
-  const demoResultTime = document.getElementById('demoResultTime');
-  const demoResultBody = document.getElementById('demoResultBody');
-  const demoError = document.getElementById('demoError');
-  const demoErrorMsg = document.getElementById('demoErrorMsg');
-
-  // Set active tab
-  let currentMode = 'scan';
-  const modeIcons = {
-    'scan': '🍽️',
-    'recipe': '👨‍🍳',
-    'allergen': '🛡️',
-    'encyclopedia': '🌍',
-    'nutrition': '📊'
   };
 
-  const modePlaceholders = {
-    'scan': 'Type any food, dish, or ingredient...',
-    'recipe': 'Enter ingredients (e.g. chicken, rice, broccoli)...',
-    'allergen': 'Enter a food to check against your allergens...',
-    'encyclopedia': 'Enter a dish to learn about its history...',
-    'nutrition': 'Ask a nutrition question...'
+  // ── View State Management ───────────────────────────────────
+  const views = {
+    splash: document.getElementById('splash-screen'),
+    auth:   document.getElementById('auth-screen'),
+    main:   document.getElementById('main-shell')
   };
 
-  demoTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      demoTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentMode = tab.dataset.mode;
-      demoInputIcon.textContent = modeIcons[currentMode];
-      demoInput.placeholder = modePlaceholders[currentMode];
-      
-      // Update result badge if we already have a result
-      demoResultMode.textContent = tab.textContent.trim().substring(2); // Remove emoji
+  const setAppView = (viewName) => {
+    Object.values(views).forEach(v => v.classList.remove('active'));
+    if (views[viewName]) views[viewName].classList.add('active');
+  };
+
+  // ── Auth Forms ──────────────────────────────────────────────
+  const loginForm    = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+
+  document.getElementById('to-register').addEventListener('click', () => {
+    loginForm.classList.remove('active');
+    registerForm.classList.add('active');
+  });
+
+  document.getElementById('to-login').addEventListener('click', () => {
+    registerForm.classList.remove('active');
+    loginForm.classList.add('active');
+  });
+
+  const apiPost = async (endpoint, body) => {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  };
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errEl    = document.getElementById('login-error');
+    try {
+      errEl.textContent = 'Authenticating...';
+      const data = await apiPost('/user/login', { email, password });
+      if (data.success) {
+        localStorage.setItem('safura_token', data.token);
+        localStorage.setItem('safura_user', JSON.stringify(data.user));
+        document.getElementById('user-name').textContent = data.user.name.split(' ')[0];
+        setAppView('main');
+      } else {
+        errEl.textContent = data.error || 'Authentication failed';
+      }
+    } catch { errEl.textContent = 'Network error. Please try again.'; }
+  });
+
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name     = document.getElementById('register-name').value;
+    const email    = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const errEl    = document.getElementById('register-error');
+    try {
+      errEl.textContent = 'Provisioning account...';
+      const data = await apiPost('/user/register', { name, email, password });
+      if (data.success) {
+        localStorage.setItem('safura_token', data.token);
+        localStorage.setItem('safura_user', JSON.stringify(data.user));
+        document.getElementById('user-name').textContent = data.user.name.split(' ')[0];
+        setAppView('main');
+      } else {
+        errEl.textContent = data.error || 'Registration failed';
+      }
+    } catch { errEl.textContent = 'Network error. Please try again.'; }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('safura_token');
+    localStorage.removeItem('safura_user');
+    setAppView('auth');
+  });
+
+  // ── Initialization ──────────────────────────────────────────
+  setTimeout(() => {
+    const token = localStorage.getItem('safura_token');
+    const user  = JSON.parse(localStorage.getItem('safura_user') || 'null');
+    if (token && user) {
+      document.getElementById('user-name').textContent = user.name.split(' ')[0];
+      setAppView('main');
+    } else {
+      setAppView('auth');
+    }
+  }, 2000);
+
+  // ── Bottom Navigation Routing ──────────────────────────────
+  const navItems = document.querySelectorAll('.nav-item');
+  const tabViews = document.querySelectorAll('.tab-view');
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      const targetId = 'view-' + item.dataset.target;
+      tabViews.forEach(t => t.classList.remove('active'));
+      document.getElementById(targetId).classList.add('active');
     });
   });
 
-  // Handle chips clicking
-  const demoChips = document.querySelectorAll('.demo-chip');
-  demoChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      demoInput.value = chip.dataset.val;
-      // Auto submit on chip click
-      handleDemoSubmit();
-    });
-  });
-
-  // Handle allergen pills
-  const allergenPills = document.querySelectorAll('.allergen-pill');
-  allergenPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      pill.classList.toggle('active');
-    });
-  });
-
+  // ── Profile Safety Toggles ─────────────────────────────────
   function getActiveAllergens() {
     const active = [];
-    document.querySelectorAll('.allergen-pill.active').forEach(pill => {
-      active.push(pill.dataset.allergen);
+    document.querySelectorAll('.toggle-item').forEach(item => {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      const label = item.querySelector('.toggle-label').textContent;
+      if (checkbox.checked) active.push(label);
     });
     return active;
   }
 
-  // Handle submit
-  demoSubmit.addEventListener('click', handleDemoSubmit);
-  demoInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleDemoSubmit();
+  // ── Feature Details Slide-in (Nested Flow) ─────────────────
+  const featureDetailsScreen = document.getElementById('feature-details-screen');
+  const featureBackBtn = document.getElementById('feature-back-btn');
+  const featureDetailTitle = document.getElementById('feature-detail-title');
+  const featureDetailIcon = document.getElementById('feature-detail-icon');
+  const featureDetailName = document.getElementById('feature-detail-name');
+  const featureDetailDesc = document.getElementById('feature-detail-desc');
+  const featureActionList = document.getElementById('feature-action-list');
+  let currentSelectedMode = null;
+
+  document.querySelectorAll('.module-list-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const mode = item.dataset.mode;
+      const meta = MODULE_META[mode];
+      if (!meta) return;
+
+      currentSelectedMode = mode;
+      
+      // Update UI
+      featureDetailTitle.textContent = meta.name;
+      featureDetailName.textContent = meta.name;
+      featureDetailDesc.textContent = meta.desc;
+      featureDetailIcon.innerHTML = item.querySelector('.mod-icon-wrapper').innerHTML;
+
+      // Render Options/Actions
+      featureActionList.innerHTML = '';
+      meta.actions.forEach(actionText => {
+        const btn = document.createElement('button');
+        btn.className = 'action-btn';
+        btn.innerHTML = `
+          <span>${actionText}</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        `;
+        btn.addEventListener('click', () => {
+          featureDetailsScreen.classList.remove('open');
+          openChatModule(mode, `I want to: ${actionText}`);
+        });
+        featureActionList.appendChild(btn);
+      });
+
+      // Also add a manual "Start Chat" option
+      const chatBtn = document.createElement('button');
+      chatBtn.className = 'action-btn';
+      chatBtn.style.background = 'linear-gradient(135deg, rgba(93,202,165,0.1), transparent)';
+      chatBtn.innerHTML = `
+        <span>Start manual chat</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      `;
+      chatBtn.addEventListener('click', () => {
+        featureDetailsScreen.classList.remove('open');
+        openChatModule(mode, null);
+      });
+      featureActionList.appendChild(chatBtn);
+
+      // Slide in
+      featureDetailsScreen.classList.add('open');
+    });
   });
 
-  async function handleDemoSubmit() {
-    const query = demoInput.value.trim();
-    if (!query) return;
+  featureBackBtn.addEventListener('click', () => {
+    featureDetailsScreen.classList.remove('open');
+  });
 
-    // Show loading state
-    demoSubmitLabel.classList.add('hidden');
-    demoSpinner.classList.remove('hidden');
-    demoSubmit.disabled = true;
+  // ── AI Chat Modal ──────────────────────────────────────────
+  const chatModal   = document.getElementById('chat-modal');
+  const chatTitle   = document.getElementById('chat-title');
+  const chatBody    = document.getElementById('chat-body');
+  const chatInput   = document.getElementById('chat-input');
+  const chatSendBtn = document.getElementById('chat-send-btn');
+  const closeChatBtn = document.getElementById('close-chat');
 
-    demoPlaceholder.classList.add('hidden');
-    demoResult.classList.add('hidden');
-    demoError.classList.add('hidden');
+  let chatHistory = [];
+
+  closeChatBtn.addEventListener('click', () => {
+    chatModal.classList.add('hidden');
+    currentSelectedMode = null;
+    chatHistory = [];
+  });
+
+  function openChatModule(mode, autoPrompt = null) {
+    const meta = MODULE_META[mode];
+    if (!meta) return;
+    currentSelectedMode = mode;
+    chatHistory = [];
+
+    chatTitle.textContent = meta.name;
+    chatInput.placeholder = meta.hint;
+    chatBody.innerHTML = '';
     
-    // Smooth scroll to result area
-    demoResultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    addChatMessage('system', `Connected to ${meta.name}. ${meta.desc}`);
+
+    chatModal.classList.remove('hidden');
+    
+    if (autoPrompt) {
+      chatInput.value = autoPrompt;
+      sendChatMessage();
+    } else {
+      chatInput.focus();
+    }
+  }
+
+  function addChatMessage(role, content) {
+    const div = document.createElement('div');
+    div.className = `chat-message ${role}`;
+    const escaped = document.createElement('div');
+    escaped.textContent = content;
+    div.innerHTML = `<div class="msg-bubble">${escaped.innerHTML}</div>`;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function addLoadingMessage() {
+    const div = document.createElement('div');
+    div.className = 'chat-message system loading';
+    div.id = 'loading-msg';
+    div.innerHTML = `<div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function removeLoadingMessage() {
+    const el = document.getElementById('loading-msg');
+    if (el) el.remove();
+  }
+
+  async function sendChatMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !currentSelectedMode) return;
+
+    addChatMessage('user', text);
+    chatInput.value = '';
+    chatHistory.push({ role: 'user', content: text });
+    
+    addLoadingMessage();
+    chatSendBtn.disabled = true;
 
     try {
-      // Prepare the payload based on mode
-      let endpoint = '';
-      let payload = {};
-
-      const userProfile = {
-        allergens: getActiveAllergens(),
-        goals: "manage_diet"
-      };
-
-      if (currentMode === 'scan') {
-        endpoint = 'http://localhost:3000/api/scan/text';
-        payload = { foodName: query, userProfile };
-      } else if (currentMode === 'recipe') {
-        endpoint = 'http://localhost:3000/api/recipe/generate';
-        payload = { 
-          ingredients: query.split(',').map(i => i.trim()),
-          userProfile 
-        };
+      const data = await apiPost('/chat', {
+        mode: currentSelectedMode,
+        messages: chatHistory,
+        userProfile: {
+          allergens: getActiveAllergens(),
+          goals: 'general wellness'
+        }
+      });
+      removeLoadingMessage();
+      if (data.success) {
+        addChatMessage('system', data.result);
+        chatHistory.push({ role: 'assistant', content: data.result });
       } else {
-        // Chat mode for the others
-        endpoint = 'http://localhost:3000/api/chat';
-        payload = {
-          mode: currentMode,
-          messages: [{ role: 'user', content: query }],
-          userProfile
-        };
+        addChatMessage('system', 'Service unavailable. Please try again.');
       }
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'API request failed');
-      }
-
-      // Show result
-      const activeTabText = document.querySelector('.demo-tab.active').textContent.trim();
-      demoResultMode.textContent = activeTabText.substring(2); // Remove emoji
-      
-      const now = new Date();
-      demoResultTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      demoResultBody.textContent = data.result;
-      demoResult.classList.remove('hidden');
-
-    } catch (err) {
-      console.error(err);
-      demoErrorMsg.textContent = "Error: Make sure the backend is running on port 3000, and your Anthropic API key is set in backend/.env.";
-      demoError.classList.remove('hidden');
+    } catch {
+      removeLoadingMessage();
+      addChatMessage('system', 'Connection failed. Verify network and backend availability.');
     } finally {
-      // Restore button
-      demoSubmitLabel.classList.remove('hidden');
-      demoSpinner.classList.add('hidden');
-      demoSubmit.disabled = false;
+      chatSendBtn.disabled = false;
+      chatInput.focus();
     }
   }
 
+  chatSendBtn.addEventListener('click', sendChatMessage);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendChatMessage();
+  });
 
-  // ── API Docs Logic ───────────────────────────────────────────────
-  
-  const endpoints = [
-    { method: 'POST', path: '/api/scan/image', title: 'Food Image Scan', active: true },
-    { method: 'POST', path: '/api/scan/text', title: 'Text Based Scan' },
-    { method: 'POST', path: '/api/recipe/generate', title: 'Generate Recipe' },
-    { method: 'POST', path: '/api/chat', title: 'AI Nutritionist Chat' },
-    { method: 'POST', path: '/api/meal-plan/generate', title: '7-Day Meal Plan' },
-    { method: 'GET', path: '/api/user/profile/:id', title: 'Get User Profile' }
-  ];
-
-  const endpointList = document.getElementById('endpointList');
-  if(endpointList) {
-    endpoints.forEach((ep, i) => {
-      const el = document.createElement('div');
-      el.className = `endpoint-item ${ep.active ? 'active' : ''}`;
-      el.innerHTML = `
-        <span class="endpoint-method method-${ep.method.toLowerCase()}">${ep.method}</span>
-        <span class="endpoint-path">${ep.path}</span>
-      `;
-      
-      el.addEventListener('click', () => {
-        document.querySelectorAll('.endpoint-item').forEach(item => item.classList.remove('active'));
-        el.classList.add('active');
-        // Update code block (mock functionality for demo)
-        updateCodeBlock(ep.path);
-      });
-      
-      endpointList.appendChild(el);
-    });
-  }
-
-  // Code Block logic
-  const codeTabs = document.querySelectorAll('.code-tab');
-  const codeContent = document.getElementById('codeContent');
-  const copyBtn = document.getElementById('copyCodeBtn');
-  
-  let currentLang = 'js';
-  let currentEndpoint = '/api/scan/image';
-
-  function updateCodeBlock(endpoint = currentEndpoint) {
-    currentEndpoint = endpoint;
-    let code = '';
-    
-    if (currentLang === 'js') {
-      code = `const response = await fetch("https://api.safura.ai${endpoint}", {\n  method: "POST",\n  headers: {\n    "Content-Type": "application/json",\n    "Authorization": "Bearer YOUR_API_KEY"\n  },\n  body: JSON.stringify({\n    // Payload specific to endpoint\n  })\n});\n\nconst data = await response.json();\nconsole.log(data.result);`;
-    } else if (currentLang === 'python') {
-      code = `import requests\n\nurl = "https://api.safura.ai${endpoint}"\nheaders = {\n    "Content-Type": "application/json",\n    "Authorization": "Bearer YOUR_API_KEY"\n}\ndata = {\n    # Payload specific to endpoint\n}\n\nresponse = requests.post(url, headers=headers, json=data)\nprint(response.json()['result'])`;
-    } else if (currentLang === 'curl') {
-      code = `curl -X POST https://api.safura.ai${endpoint} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -d '{\n    "payload": "data"\n  }'`;
-    }
-    
-    if(codeContent) codeContent.textContent = code;
-  }
-
-  codeTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      codeTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentLang = tab.dataset.lang;
-      updateCodeBlock();
+  // ── Quick Actions from Home Tab ────────────────────────────
+  document.querySelectorAll('.scan-card-mini').forEach(card => {
+    card.addEventListener('click', () => {
+      const foodName = card.querySelector('h4').textContent;
+      openChatModule('scan', `Can you scan this: ${foodName}`);
     });
   });
 
-  // Init code block
-  updateCodeBlock();
+  // ── Plan Tab Action ────────────────────────────────────────
+  const generatePlanBtn = document.querySelector('#view-plan .btn-primary');
+  if (generatePlanBtn) {
+    generatePlanBtn.addEventListener('click', async () => {
+      generatePlanBtn.textContent = 'Generating Secure Plan...';
+      generatePlanBtn.disabled = true;
+      try {
+        const data = await apiPost('/meal-plan/generate', {
+          preferences: { days: 3 },
+          userProfile: { allergens: getActiveAllergens() }
+        });
+        if (data.success) {
+          const planCard = document.querySelector('#view-plan .plan-card');
+          planCard.innerHTML = `<div class="plan-day">AI Curated Plan</div><pre style="white-space:pre-wrap;font-family:'Inter';font-size:0.85rem;line-height:1.6;color:#E2E8F0;">${data.result}</pre>`;
+        }
+      } catch {
+        alert('API unavailable.');
+      } finally {
+        generatePlanBtn.textContent = 'Generate New Plan';
+        generatePlanBtn.disabled = false;
+      }
+    });
+  }
 
-  if(copyBtn && codeContent) {
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(codeContent.textContent);
-      const originalText = copyBtn.innerHTML;
-      copyBtn.innerHTML = '✓ Copied!';
-      setTimeout(() => {
-        copyBtn.innerHTML = originalText;
-      }, 2000);
+  // ── Camera Scan Action ─────────────────────────────────────
+  const captureBtn = document.getElementById('capture-btn');
+  const camScanModal = document.getElementById('scan-modal');
+  const closeCamScan = document.getElementById('close-scan');
+  
+  if (captureBtn && camScanModal) {
+    captureBtn.addEventListener('click', async () => {
+      camScanModal.classList.remove('hidden');
+      const body = document.getElementById('scan-result-body');
+      body.innerHTML = '<div style="text-align:center;padding:2rem;color:#A0AEC0;">Processing visual data...</div>';
+      
+      try {
+        const data = await apiPost('/scan/text', {
+          foodName: 'Sushi Roll',
+          userProfile: { allergens: getActiveAllergens() }
+        });
+        if (data.success) {
+          body.innerHTML = `<h2 style="font-family:'Outfit';margin-bottom:1rem;">Analysis Complete</h2><pre style="white-space:pre-wrap;font-family:'Inter';font-size:0.9rem;line-height:1.6;color:#E2E8F0;">${data.result}</pre>`;
+        } else {
+          body.innerHTML = '<div style="color:#EF4444;">Processing failed.</div>';
+        }
+      } catch {
+        body.innerHTML = '<div style="color:#EF4444;">Network connection lost.</div>';
+      }
+    });
+    
+    closeCamScan.addEventListener('click', () => {
+      camScanModal.classList.add('hidden');
     });
   }
 });

@@ -2,33 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Safura AI — Understand Every Meal</title>
-  <meta name="description" content="Safura AI is the world's most culturally-aware food intelligence platform. Scan food, detect allergens, plan meals, and explore global cuisines." />
-  <meta name="theme-color" content="#085041" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Safura AI</title>
+  
+  <meta name="theme-color" content="#031511" />
+  <link rel="manifest" href="public/manifest.json" />
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Safura AI — Understand Every Meal" />
-  <meta property="og:description" content="The world's food intelligence network. Scan, learn, eat confidently." />
-  <meta property="og:type" content="website" />
+  <!-- iOS PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Safura" />
+  <link rel="apple-touch-icon" href="/assets/icons/ios/AppIcon-180x180.png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <!-- Favicon inline SVG -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23085041'/%3E%3Cellipse cx='16' cy='15.5' rx='5.8' ry='8' fill='none' stroke='%235DCAA5' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='15.5' r='2.2' fill='%235DCAA5'/%3E%3Cpath d='M16 11.2 Q18.6 9.6 20.4 7.8 Q19.8 10.8 17.8 12.6 Q19.6 11.8 21.8 11.8 Q19.6 13.6 17 13.6 Q16.6 14.6 16 15.5 Q15.4 14.6 15 13.6 Q12.4 13.6 10.2 11.8 Q12.4 11.8 14.2 12.6 Q12.2 10.8 11.6 7.8 Q13.4 9.6 16 11.2Z' fill='%23EF9F27'/%3E%3C/svg%3E" />
-
+  <link rel="icon" href="/assets/icons/web/favicon.svg" />
   <link rel="stylesheet" href="src/styles/main.css" />
 </head>
-<body>
+<body class="mobile-app">
 
-  <!-- ── Nav ───────────────────────────────────────────── -->
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="#" class="nav-logo" id="nav-logo-link">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 1024 1024">
+  <div id="app-root">
+
+    <!-- ── Splash Screen ─────────────────────────────────── -->
+    <div id="splash-screen" class="view splash-view active">
+      <div class="splash-content">
+        <svg class="splash-logo" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 1024 1024">
           <rect width="1024" height="1024" rx="225" fill="#085041"/>
           <ellipse cx="512" cy="502" rx="194" ry="266" fill="none" stroke="#1D9E75" stroke-width="36"/>
           <ellipse cx="512" cy="502" rx="194" ry="266" fill="none" stroke="#5DCAA5" stroke-width="13"/>
@@ -38,400 +39,395 @@
           <circle cx="512" cy="502" r="18" fill="#085041"/>
           <path d="M512 369 Q574 328 624 276 Q604 358 552 410 Q594 388 656 388 Q604 432 542 432 Q530 462 512 502 Q494 462 482 432 Q420 432 368 388 Q430 388 472 410 Q420 358 400 276 Q450 328 512 369Z" fill="#EF9F27"/>
         </svg>
-        <span class="nav-wordmark">safura</span>
-      </a>
-      <div class="nav-links">
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#modules" class="nav-link">Modules</a>
-        <a href="#demo" class="nav-link">Try Demo</a>
-        <a href="#docs" class="nav-link">Docs</a>
+        <div class="splash-text">safura</div>
+        <div class="splash-loader"></div>
       </div>
-      <a href="#demo" class="btn btn-primary nav-cta">Try Free</a>
-      <button class="nav-mobile-btn" id="navMobileBtn" aria-label="Menu">
-        <span></span><span></span><span></span>
+    </div>
+
+    <!-- ── Auth Screen ───────────────────────────────────── -->
+    <div id="auth-screen" class="view auth-view">
+      <div class="auth-container">
+        <div class="auth-header text-center">
+          <img src="/assets/icons/web/favicon.svg" alt="Safura Logo" class="auth-logo" />
+          <h2>Welcome</h2>
+          <p>Understand every meal.</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+          <div class="input-group">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="you@example.com" inputmode="email" enterkeyhint="next" required />
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" enterkeyhint="done" required />
+          </div>
+          <div id="login-error" class="error-msg"></div>
+          <button type="submit" class="btn btn-primary full-width" id="login-btn">Log In</button>
+          <p class="auth-switch">Don't have an account? <span id="to-register">Sign Up</span></p>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form">
+          <div class="input-group">
+            <label>Name</label>
+            <input type="text" id="register-name" placeholder="John Doe" inputmode="text" enterkeyhint="next" required />
+          </div>
+          <div class="input-group">
+            <label>Email</label>
+            <input type="email" id="register-email" placeholder="you@example.com" inputmode="email" enterkeyhint="next" required />
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="register-password" placeholder="••••••••" enterkeyhint="done" required />
+          </div>
+          <div id="register-error" class="error-msg"></div>
+          <button type="submit" class="btn btn-primary full-width" id="register-btn">Create Account</button>
+          <p class="auth-switch">Already have an account? <span id="to-login">Log In</span></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Main App Shell ────────────────────────────────── -->
+    <div id="main-shell" class="view main-view">
+      
+      <!-- Views Container -->
+      <div class="views-container">
+        
+        <!-- Home View -->
+        <div id="view-home" class="tab-view active">
+          <div class="header">
+            <div>
+              <h1 class="greeting">Hi, <span id="user-name">there</span> 👋</h1>
+              <p class="subtitle">Here is your daily overview</p>
+            </div>
+            <div class="avatar" id="logout-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </div>
+          </div>
+
+          <div class="macro-dashboard">
+            <div class="macro-ring">
+              <svg viewBox="0 0 36 36" class="circular-chart orange">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle" stroke-dasharray="60, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">1,420</text>
+                <text x="18" y="26" class="label">kcal</text>
+              </svg>
+            </div>
+            <div class="macro-stats">
+              <div class="stat"><span class="dot p"></span> Protein: 42g</div>
+              <div class="stat"><span class="dot c"></span> Carbs: 150g</div>
+              <div class="stat"><span class="dot f"></span> Fat: 32g</div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <h3 class="section-heading">Recent Scans</h3>
+            <button class="text-btn">View All</button>
+          </div>
+          <div class="recent-list">
+            <div class="scan-card-mini">
+              <div class="scan-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              </div>
+              <div class="scan-details">
+                <h4>Sushi Roll</h4>
+                <p>Safe · 320 kcal</p>
+              </div>
+              <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="scan-card-mini">
+              <div class="scan-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              </div>
+              <div class="scan-details">
+                <h4>Greek Salad</h4>
+                <p>Safe · 150 kcal</p>
+              </div>
+              <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scan View -->
+        <div id="view-scan" class="tab-view">
+          <div class="camera-ui">
+            <div class="camera-viewfinder">
+              <div class="corners top-left"></div>
+              <div class="corners top-right"></div>
+              <div class="corners bottom-left"></div>
+              <div class="corners bottom-right"></div>
+              <div class="scan-line"></div>
+              <p class="scan-hint">Point at food to analyse</p>
+            </div>
+            <div class="camera-controls">
+              <button class="cam-btn secondary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              </button>
+              <button class="cam-btn primary" id="capture-btn"></button>
+              <button class="cam-btn secondary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              </button>
+            </div>
+          </div>
+          <!-- Modal for Scan Result -->
+          <div class="scan-modal hidden" id="scan-modal">
+            <div class="scan-modal-content">
+              <button class="close-modal" id="close-scan">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+              <div id="scan-result-body">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan View -->
+        <div id="view-plan" class="tab-view">
+          <div class="header">
+            <h1>Meal Plan</h1>
+          </div>
+          <div class="plan-card">
+            <div class="plan-day">Today</div>
+            <div class="meal">
+              <span class="time">Breakfast</span>
+              <span class="food">Oatmeal with Berries</span>
+            </div>
+            <div class="meal">
+              <span class="time">Lunch</span>
+              <span class="food">Chicken Salad Wrap</span>
+            </div>
+            <div class="meal">
+              <span class="time">Dinner</span>
+              <span class="food">Grilled Salmon & Quinoa</span>
+            </div>
+          </div>
+          <button class="btn btn-primary full-width mt-4" style="margin-top:1rem;">Generate New Plan</button>
+        </div>
+
+        <!-- Explore View (Redesigned) -->
+        <div id="view-explore" class="tab-view">
+          <div class="header">
+            <h1>Intelligence</h1>
+            <p class="subtitle mt-2">Select a module to begin</p>
+          </div>
+          <div class="modules-list" id="modules-list">
+            
+            <div class="module-list-item" data-mode="scan">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Food Scanner</h4>
+                <p class="mod-desc">Identify food and get full breakdowns</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="allergen">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Allergen Guard</h4>
+                <p class="mod-desc">Strict safety checks for 14 EU allergens</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="nutrition">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Nutrition Coach</h4>
+                <p class="mod-desc">Personalized daily macro guidance</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="encyclopedia">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Global Encyclopedia</h4>
+                <p class="mod-desc">Deep dive into cultural food origins</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="menu">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Menu Scanner</h4>
+                <p class="mod-desc">Translate and analyze restaurant menus</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="travel">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2" ry="2"></rect><path d="M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path><line x1="12" y1="12" x2="12" y2="16"></line></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Travel Assistant</h4>
+                <p class="mod-desc">Navigate dietary needs in foreign countries</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="recipe">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Recipe Generator</h4>
+                <p class="mod-desc">Create custom recipes from ingredients</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="mealplan">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Meal Planner</h4>
+                <p class="mod-desc">Automated 7-day nutritional planning</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="freshness">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Freshness Detector</h4>
+                <p class="mod-desc">Estimate food spoilage and safety</p>
+              </div>
+            </div>
+
+            <div class="module-list-item" data-mode="carbon">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+              <div class="mod-content">
+                <h4 class="mod-name">Carbon Footprint</h4>
+                <p class="mod-desc">Track sustainability and CO₂ impact</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="view-profile" class="tab-view">
+          <div class="header">
+            <h1>Safety Profile</h1>
+          </div>
+          
+          <div class="profile-card">
+            <div class="flex-between">
+              <h3>Allergen Filters</h3>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <p class="text-sm mt-1">Active filters are strictly enforced across all scans and plans.</p>
+            
+            <div class="allergen-toggles mt-3">
+              <div class="toggle-item">
+                <span class="toggle-label">Nuts & Peanuts</span>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+              <div class="toggle-item">
+                <span class="toggle-label">Dairy (Lactose)</span>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+              <div class="toggle-item">
+                <span class="toggle-label">Gluten / Wheat</span>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+              </div>
+              <div class="toggle-item">
+                <span class="toggle-label">Shellfish</span>
+                <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-card">
+            <h3>Achievements</h3>
+            <div class="achievement-row mt-3">
+              <div class="achievement-icon active">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              </div>
+              <div class="achievement-icon active">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div class="achievement-icon locked">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div class="achievement-icon locked">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" data-target="home">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Home</span>
+        </button>
+        <button class="nav-item" data-target="explore">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Explore</span>
+        </button>
+        <button class="nav-item" data-target="scan">
+          <div class="scan-fab">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+          </div>
+        </button>
+        <button class="nav-item" data-target="plan">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>Plan</span>
+        </button>
+        <button class="nav-item" data-target="profile">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profile</span>
+        </button>
+      </nav>
+
+    </div>
+
+  </div>
+
+  <!-- Feature Details Slide-in -->
+  <div class="feature-details-screen hidden" id="feature-details-screen">
+    <div class="feature-header">
+      <button class="back-btn" id="feature-back-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
       </button>
+      <div class="feature-title" id="feature-detail-title">Module</div>
     </div>
-    <div class="nav-mobile-menu" id="navMobileMenu">
-      <a href="#features" class="nav-mobile-link">Features</a>
-      <a href="#modules" class="nav-mobile-link">Modules</a>
-      <a href="#demo" class="nav-mobile-link">Try Demo</a>
-      <a href="#docs" class="nav-mobile-link">API Docs</a>
-    </div>
-  </nav>
+    <div class="feature-content">
+      <div class="feature-hero">
+        <div class="feature-hero-icon" id="feature-detail-icon">
+          <!-- SVG injected here -->
+        </div>
+        <h2 id="feature-detail-name">Feature Name</h2>
+        <p id="feature-detail-desc">Feature description goes here.</p>
+      </div>
 
-  <!-- ── Hero ──────────────────────────────────────────── -->
-  <section class="hero" id="home">
-    <div class="hero-bg">
-      <div class="hero-orb hero-orb-1"></div>
-      <div class="hero-orb hero-orb-2"></div>
-      <div class="hero-orb hero-orb-3"></div>
-      <div class="hero-grid"></div>
-    </div>
-    <div class="hero-content">
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        AI-Powered · 14 Intelligence Modules · 195 Cuisines
-      </div>
-      <h1 class="hero-title">
-        Understand<br/>
-        <span class="hero-title-accent">every meal.</span>
-      </h1>
-      <p class="hero-subtitle">
-        The world's most culturally-aware food intelligence platform.<br/>
-        Scan food, detect allergens, plan meals, explore global cuisines.
-      </p>
-      <div class="hero-actions">
-        <a href="#demo" class="btn btn-primary btn-xl">
-          <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 2a7 7 0 1 1 0 14A7 7 0 0 1 12 2Z" stroke="currentColor" stroke-width="2"/><path d="M12 16v6M8 22h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Try the Demo
-        </a>
-        <a href="#features" class="btn btn-ghost btn-xl">Explore Features →</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><span class="hero-stat-num">195</span><span class="hero-stat-label">Cuisines</span></div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat"><span class="hero-stat-num">14</span><span class="hero-stat-label">AI Modules</span></div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat"><span class="hero-stat-num">14</span><span class="hero-stat-label">Allergens Tracked</span></div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat"><span class="hero-stat-num">∞</span><span class="hero-stat-label">Recipes</span></div>
-      </div>
-    </div>
-    <!-- Floating scan card preview -->
-    <div class="hero-card-preview" id="heroCard">
-      <div class="scan-card">
-        <div class="scan-card-header">
-          <div class="scan-card-icon">🍽️</div>
-          <div>
-            <div class="scan-card-title">Jollof Rice</div>
-            <div class="scan-card-origin">📍 West Africa · Nigeria</div>
-          </div>
-          <div class="scan-card-confidence">HIGH</div>
-        </div>
-        <div class="scan-card-macros">
-          <div class="macro-chip">🔥 420 kcal</div>
-          <div class="macro-chip">⚡ 8g protein</div>
-          <div class="macro-chip">🌾 78g carbs</div>
-          <div class="macro-chip">🫒 12g fat</div>
-        </div>
-        <div class="scan-card-row safe">✅ Vegan · Gluten-free · Halal</div>
-        <div class="scan-card-row warn">⚠️ May contain traces of fish stock</div>
-        <div class="scan-card-culture">🌍 A beloved West African one-pot dish, often at the centre of celebrations.</div>
-        <div class="scan-card-actions">
-          <button class="scan-action-btn">Get Recipe</button>
-          <button class="scan-action-btn">Nutrition Breakdown</button>
+      <div class="feature-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-list" id="feature-action-list">
+          <!-- Actions injected via JS -->
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ── Features Grid ─────────────────────────────────── -->
-  <section class="features-section" id="features">
-    <div class="container">
-      <div class="section-label">Core Capabilities</div>
-      <h2 class="section-title">Everything food, nothing else.</h2>
-      <p class="section-subtitle">Every capability built specifically for food intelligence — not a general AI wearing a chef's hat.</p>
-
-      <div class="features-grid">
-        <div class="feature-card feature-card-large">
-          <div class="feature-icon">🔍</div>
-          <h3>AI Food Recognition</h3>
-          <p>Point your camera at any dish from any culture. Safura identifies it, breaks down the ingredients, estimates macros, and flags allergens — in seconds.</p>
-          <div class="feature-tag-row">
-            <span class="feature-tag">Image Scan</span>
-            <span class="feature-tag">Text Search</span>
-            <span class="feature-tag">Barcode</span>
-          </div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🛡️</div>
-          <h3>Allergen Guard</h3>
-          <p>All 14 EU allergens tracked. Cross-contamination flagged. Three-verdict system: ✅ Safe · ⚠️ Caution · 🚫 Avoid.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>Nutrition Coach</h3>
-          <p>Daily macro tracking tied to your personal goals. Specific food suggestions to fill nutritional gaps.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🌍</div>
-          <h3>Global Encyclopedia</h3>
-          <p>Deep knowledge of 195 cuisines. Cultural context, preparation traditions, and regional variations — always respectful.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🍴</div>
-          <h3>Restaurant Menu Scanner</h3>
-          <p>Scan any menu. Translate, allergen-check every item, and get your #1 recommended order ranked for your profile.</p>
-        </div>
-
-        <div class="feature-card feature-card-large">
-          <div class="feature-icon">✈️</div>
-          <h3>Travel Food Assistant</h3>
-          <p>Abroad? Safura translates menus, warns about regional allergen practices (fish sauce in SE Asia, hidden dairy in Europe), and teaches you key food phrases in the local language.</p>
-          <div class="feature-tag-row">
-            <span class="feature-tag">Translation</span>
-            <span class="feature-tag">Cultural Alerts</span>
-            <span class="feature-tag">Local Phrases</span>
-          </div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">👨‍🍳</div>
-          <h3>Recipe Generator</h3>
-          <p>From whatever's in your fridge. Complete recipes with timings, difficulty, nutrition, and allergen swaps.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📅</div>
-          <h3>7-Day Meal Planner</h3>
-          <p>Personalized weekly plans with full shopping lists grouped by store section. Varied cuisines, no repeats.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🌿</div>
-          <h3>Freshness Detector</h3>
-          <p>Photo or description — get a freshness verdict, storage tips, and safe use guidance in seconds.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🌱</div>
-          <h3>Carbon Footprint</h3>
-          <p>CO₂e per serving, water usage, land use rating and sustainability score for every meal.</p>
+  <!-- AI Chat Modal -->
+  <div class="chat-modal hidden" id="chat-modal">
+    <div class="chat-modal-content">
+      <div class="chat-header">
+        <h3 id="chat-title">AI Module</h3>
+        <button class="close-modal" id="close-chat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="chat-body" id="chat-body">
+        <div class="chat-message system">
+          <div class="msg-bubble">How can I help you today?</div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ── Modules Section ───────────────────────────────── -->
-  <section class="modules-section" id="modules">
-    <div class="container">
-      <div class="section-label">Intelligence Modules</div>
-      <h2 class="section-title">14 specialist AI modes.</h2>
-      <p class="section-subtitle">Each module is a dedicated AI persona optimised for one context. No generic chat — pure specialists.</p>
-
-      <div class="modules-grid" id="modulesGrid">
-        <!-- JS populated -->
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" />
+        <button class="chat-send-btn" id="chat-send-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
       </div>
     </div>
-  </section>
-
-  <!-- ── Demo Section ──────────────────────────────────── -->
-  <section class="demo-section" id="demo">
-    <div class="container">
-      <div class="section-label">Live Demo</div>
-      <h2 class="section-title">Try Safura AI now.</h2>
-      <p class="section-subtitle">Enter any food, dish, or ingredient and see Safura's intelligence in action. Powered by Claude claude-sonnet-4-20250514.</p>
-
-      <div class="demo-shell">
-        <!-- Mode Tabs -->
-        <div class="demo-tabs" id="demoTabs">
-          <button class="demo-tab active" data-mode="scan">🔍 Food Scan</button>
-          <button class="demo-tab" data-mode="recipe">👨‍🍳 Recipe</button>
-          <button class="demo-tab" data-mode="allergen">🛡️ Allergen</button>
-          <button class="demo-tab" data-mode="encyclopedia">🌍 Encyclopedia</button>
-          <button class="demo-tab" data-mode="nutrition">📊 Nutrition</button>
-        </div>
-
-        <!-- Input Area -->
-        <div class="demo-input-area">
-          <div class="demo-input-row">
-            <div class="demo-input-wrap">
-              <span class="demo-input-icon" id="demoInputIcon">🍽️</span>
-              <input
-                type="text"
-                id="demoInput"
-                class="demo-input"
-                placeholder="Type any food, dish, or ingredient…"
-                autocomplete="off"
-              />
-            </div>
-            <button class="btn btn-primary demo-submit" id="demoSubmit">
-              <span id="demoSubmitLabel">Analyse</span>
-              <div class="demo-spinner hidden" id="demoSpinner"></div>
-            </button>
-          </div>
-
-          <!-- Quick chips -->
-          <div class="demo-chips" id="demoChips">
-            <button class="demo-chip" data-val="Jollof Rice">Jollof Rice</button>
-            <button class="demo-chip" data-val="Pad Thai">Pad Thai</button>
-            <button class="demo-chip" data-val="Croissant">Croissant</button>
-            <button class="demo-chip" data-val="Injera">Injera</button>
-            <button class="demo-chip" data-val="Biryani">Biryani</button>
-            <button class="demo-chip" data-val="Sushi">Sushi</button>
-            <button class="demo-chip" data-val="Tacos">Tacos</button>
-            <button class="demo-chip" data-val="Hummus">Hummus</button>
-          </div>
-
-          <!-- Profile strip -->
-          <div class="demo-profile-strip">
-            <label class="demo-profile-label">Your allergens (demo):</label>
-            <div class="demo-allergen-pills" id="allergenPills">
-              <button class="allergen-pill" data-allergen="nuts">🥜 Nuts</button>
-              <button class="allergen-pill" data-allergen="dairy">🥛 Dairy</button>
-              <button class="allergen-pill" data-allergen="gluten">🌾 Gluten</button>
-              <button class="allergen-pill" data-allergen="eggs">🥚 Eggs</button>
-              <button class="allergen-pill" data-allergen="shellfish">🦐 Shellfish</button>
-              <button class="allergen-pill" data-allergen="fish">🐟 Fish</button>
-              <button class="allergen-pill" data-allergen="soy">🫘 Soy</button>
-              <button class="allergen-pill" data-allergen="sesame">🫙 Sesame</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Result Area -->
-        <div class="demo-result-area" id="demoResultArea">
-          <div class="demo-placeholder" id="demoPlaceholder">
-            <div class="demo-placeholder-icon">🌍</div>
-            <p>Your analysis will appear here.</p>
-            <p class="demo-placeholder-sub">Try "Jollof Rice" or "Injera" above.</p>
-          </div>
-          <div class="demo-result hidden" id="demoResult">
-            <div class="demo-result-header">
-              <div class="demo-result-badge" id="demoResultMode">Food Scan</div>
-              <div class="demo-result-time" id="demoResultTime"></div>
-            </div>
-            <div class="demo-result-body" id="demoResultBody"></div>
-          </div>
-          <div class="demo-error hidden" id="demoError">
-            <div class="demo-error-icon">⚠️</div>
-            <p id="demoErrorMsg">Something went wrong. Check your API key in backend/.env and make sure the backend is running on port 3000.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── API Docs Section ──────────────────────────────── -->
-  <section class="docs-section" id="docs">
-    <div class="container">
-      <div class="section-label">Developer Docs</div>
-      <h2 class="section-title">Integrate in minutes.</h2>
-      <p class="section-subtitle">REST API with full AI context injection. Works with any frontend stack.</p>
-
-      <div class="docs-grid">
-        <div class="docs-endpoints">
-          <h3>API Endpoints</h3>
-          <div class="endpoint-list" id="endpointList">
-            <!-- JS populated -->
-          </div>
-        </div>
-        <div class="docs-code-panel">
-          <div class="code-tabs" id="codeTabs">
-            <button class="code-tab active" data-lang="js">JavaScript</button>
-            <button class="code-tab" data-lang="python">Python</button>
-            <button class="code-tab" data-lang="curl">cURL</button>
-          </div>
-          <div class="code-block-wrap">
-            <button class="copy-btn" id="copyCodeBtn" aria-label="Copy code">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>
-              Copy
-            </button>
-            <pre class="code-block" id="codeBlock"><code id="codeContent"></code></pre>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Stack Section ─────────────────────────────────── -->
-  <section class="stack-section">
-    <div class="container">
-      <div class="section-label">Recommended Stack</div>
-      <h2 class="section-title">Built on the best.</h2>
-      <div class="stack-grid">
-        <div class="stack-card">
-          <div class="stack-icon">⚛️</div>
-          <div class="stack-name">React Native</div>
-          <div class="stack-role">iOS + Android</div>
-        </div>
-        <div class="stack-card">
-          <div class="stack-icon">▲</div>
-          <div class="stack-name">Next.js</div>
-          <div class="stack-role">Web Frontend</div>
-        </div>
-        <div class="stack-card">
-          <div class="stack-icon">🟩</div>
-          <div class="stack-name">Node.js + Express</div>
-          <div class="stack-role">Backend API</div>
-        </div>
-        <div class="stack-card stack-card-highlight">
-          <div class="stack-icon">✦</div>
-          <div class="stack-name">Claude claude-sonnet-4-20250514</div>
-          <div class="stack-role">AI Engine</div>
-        </div>
-        <div class="stack-card">
-          <div class="stack-icon">🐘</div>
-          <div class="stack-name">PostgreSQL</div>
-          <div class="stack-role">User Profiles</div>
-        </div>
-        <div class="stack-card">
-          <div class="stack-icon">🔴</div>
-          <div class="stack-name">Redis</div>
-          <div class="stack-role">Session Cache</div>
-        </div>
-        <div class="stack-card">
-          <div class="stack-icon">🔐</div>
-          <div class="stack-name">Supabase Auth</div>
-          <div class="stack-role">Authentication</div>
-        </div>
-        <div class="stack-card">
-          <div class="stack-icon">☁️</div>
-          <div class="stack-name">AWS S3</div>
-          <div class="stack-role">Image Storage</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CTA ───────────────────────────────────────────── -->
-  <section class="cta-section">
-    <div class="cta-bg">
-      <div class="cta-orb"></div>
-    </div>
-    <div class="container cta-inner">
-      <div class="cta-badge">Open Source Friendly · MIT License</div>
-      <h2 class="cta-title">Ready to understand every meal?</h2>
-      <p class="cta-subtitle">Add your Anthropic API key and the backend starts in seconds.</p>
-      <div class="cta-code">npm install &amp;&amp; npm run dev</div>
-      <div class="cta-actions">
-        <a href="#demo" class="btn btn-primary btn-xl">Try Demo</a>
-        <a href="https://github.com" class="btn btn-ghost btn-xl" target="_blank" rel="noopener">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10Z"/></svg>
-          View on GitHub
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Footer ─────────────────────────────────────────── -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 1024 1024">
-          <rect width="1024" height="1024" rx="225" fill="#085041"/>
-          <ellipse cx="512" cy="502" rx="194" ry="266" fill="none" stroke="#5DCAA5" stroke-width="40"/>
-          <circle cx="512" cy="502" r="36" fill="#5DCAA5"/>
-          <path d="M512 369 Q574 328 624 276 Q604 358 552 410 Q594 388 656 388 Q604 432 542 432 Q530 462 512 502 Q494 462 482 432 Q420 432 368 388 Q430 388 472 410 Q420 358 400 276 Q450 328 512 369Z" fill="#EF9F27"/>
-        </svg>
-        <div>
-          <div class="footer-name">safura ai</div>
-          <div class="footer-tagline">"Understand every meal."</div>
-        </div>
-      </div>
-      <div class="footer-links">
-        <a href="#features">Features</a>
-        <a href="#modules">Modules</a>
-        <a href="#demo">Demo</a>
-        <a href="#docs">API Docs</a>
-      </div>
-      <div class="footer-copy">© 2026 Safura AI. Version 1.0.0</div>
-    </div>
-  </footer>
+  </div>
 
   <script src="src/app.js"></script>
 </body>
