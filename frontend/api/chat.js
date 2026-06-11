@@ -44,6 +44,21 @@ User Profile: ${JSON.stringify(profile)}`;
 Only return the JSON. No markdown backticks, no other text.`;
 
       finalMessages = [{ role: 'user', content: `Create a meal plan for ${formData?.duration || '1 Day'}. Goal: ${formData?.goal || 'Maintain'}.` }];
+    } else if (mode === 'freshness') {
+      systemPrompt += `\nYou are an expert food safety inspector. The user has provided an image or text description of food along with storage parameters.
+Your goal is to accurately assess its spoilage risk, remaining shelf life, and safety. Give precise scientific estimates based on FDA guidelines. Warn the user strongly if there is a risk of foodborne illness.`;
+      
+      if (image) {
+        finalMessages = [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: image } },
+            { type: 'text', text: `Assess this food. Params: ${JSON.stringify(formData)}` }
+          ]
+        }];
+      } else {
+        finalMessages = [{ role: 'user', content: `Assess freshness of this food. Params: ${JSON.stringify(formData)}` }];
+      }
     } else {
       // Default query or form data
       if (query) {

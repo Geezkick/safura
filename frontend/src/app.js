@@ -118,6 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'dish_origin', type: 'input', label: 'Dish or Region', placeholder: 'e.g., Paella, West Africa' }
       ]
     },
+    freshness: { 
+      name: 'Freshness AI', 
+      desc: 'Analyze food safety and detect spoilage instantly.',
+      form: [
+        { id: 'food_name', type: 'input', label: 'What food is this?', placeholder: 'e.g., Raw Chicken, Strawberries' },
+        { id: 'storage_method', type: 'select', label: 'How was it stored?', options: ['Fridge', 'Room Temperature', 'Freezer'] },
+        { id: 'days_stored', type: 'input', label: 'Days stored (approx.)', placeholder: 'e.g., 3' }
+      ]
+    },
     travel: { 
       name: 'Travel Assistant', 
       desc: 'Navigate your dietary needs safely in foreign countries.',
@@ -290,10 +299,56 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function initProfile() {
-    const data = JSON.parse(localStorage.getItem('safura_profile') || '{}');
-    const user = JSON.parse(localStorage.getItem('safura_user') || '{"name":"User"}');
+    // Family Profile Setup
+    const familyProfiles = JSON.parse(localStorage.getItem('safura_family') || '[]');
+    const switcher = document.getElementById('family-profile-switcher');
+    if (switcher && switcher.options.length <= 2) {
+      familyProfiles.forEach((prof, idx) => {
+        const opt = document.createElement('option');
+        opt.value = `family_${idx}`;
+        opt.textContent = prof.name;
+        switcher.insertBefore(opt, switcher.lastElementChild);
+      });
+
+      switcher.addEventListener('change', (e) => {
+        if (e.target.value === 'new') {
+          const name = prompt("Enter family member's name:");
+          if (name) {
+            const allergens = prompt("Any allergies? (comma separated):");
+            const newMember = { name, allergens: allergens ? allergens.split(',').map(s=>s.trim()) : [] };
+            const fam = JSON.parse(localStorage.getItem('safura_family') || '[]');
+            fam.push(newMember);
+            localStorage.setItem('safura_family', JSON.stringify(fam));
+            initProfile(); // Reload
+            switcher.value = `family_${fam.length - 1}`;
+            switcher.dispatchEvent(new Event('change'));
+          } else {
+            switcher.value = 'main';
+          }
+        } else {
+          // Switch display context
+          renderProfileContext(e.target.value);
+        }
+      });
+    }
+
+    renderProfileContext('main');
+  }
+
+  function renderProfileContext(mode) {
+    let data = {};
+    let user = JSON.parse(localStorage.getItem('safura_user') || '{"name":"User"}');
     
-    document.getElementById('profile-display-name').textContent = user.name;
+    if (mode === 'main') {
+      data = JSON.parse(localStorage.getItem('safura_profile') || '{}');
+      document.getElementById('profile-display-name').textContent = user.name;
+    } else {
+      const idx = parseInt(mode.split('_')[1]);
+      const fam = JSON.parse(localStorage.getItem('safura_family') || '[]');
+      data = fam[idx] || {};
+      document.getElementById('profile-display-name').textContent = data.name;
+    }
+    
     document.getElementById('prof-height').textContent = data.height ? `${data.height} cm` : '—';
     document.getElementById('prof-weight').textContent = data.weight ? `${data.weight} kg` : '—';
     
@@ -301,6 +356,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const h = data.height / 100;
       const bmi = (data.weight / (h * h)).toFixed(1);
       document.getElementById('prof-bmi').textContent = bmi;
+    } else {
+      document.getElementById('prof-bmi').textContent = '—';
     }
 
     document.getElementById('prof-age').textContent = data.age || '—';
@@ -311,14 +368,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const goalMap = { lose: 'Weight Loss', maintain: 'Maintenance', gain: 'Muscle Gain' };
     document.getElementById('profile-goal-label').textContent = `Goal: ${data.goal ? goalMap[data.goal] : '—'}`;
 
-    if (data.photo) {
+    if (data.photo && mode === 'main') {
       const img = document.getElementById('profile-photo');
       img.src = data.photo;
       img.style.display = 'block';
       document.getElementById('profile-avatar-fallback').style.display = 'none';
-      
-      const homeImg = document.querySelector('.avatar');
-      if (homeImg) homeImg.style.backgroundImage = `url(${data.photo})`;
+    } else {
+      document.getElementById('profile-photo').style.display = 'none';
+      document.getElementById('profile-avatar-fallback').style.display = 'flex';
     }
 
     const allergenList = document.getElementById('profile-allergen-list');
@@ -328,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
       allergenList.innerHTML = '<span class="allergen-badge" style="background:rgba(255,255,255,0.1);color:var(--safura-text-muted);">None set</span>';
     }
 
-    initLiveTrackers(data);
+    if (mode === 'main') initLiveTrackers(data);
   }
 
   // ── Live Trackers Logic ────────────────────────────────────
@@ -486,10 +543,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Smart Scanner Logic ────────────────────────────────────
-  const scanCameraInput = document.getElementById('scan-camera-input');
   const scanUploadInput = document.getElementById('scan-upload-input');
   const scanPreview = document.getElementById('scan-preview');
   const scannerPlaceholder = document.getElementById('scanner-placeholder');
+  
+  // AR Camera Elements
+  const arContainer = document.getElementById('ar-camera-container');
+  const arVideo = document.getElementById('ar-video');
+  const arCanvas = document.getElementById('ar-canvas');
+  const arCaptureBtn = document.getElementById('ar-capture-btn');
+  const arCloseBtn = document.getElementById('ar-close-btn');
+  let currentStream = null;
+
   let currentScanImage = null;
 
   function handleImageInput(e) {
@@ -506,10 +571,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.getElementById('btn-live-scan').addEventListener('click', () => scanCameraInput.click());
-  document.getElementById('btn-upload-photo').addEventListener('click', () => scanUploadInput.click());
+  // WebRTC AR Camera Logic
+  document.getElementById('btn-live-scan').addEventListener('click', async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        arVideo.srcObject = currentStream;
+        arContainer.style.display = 'block';
+        scannerPlaceholder.style.display = 'none';
+        scanPreview.classList.add('hidden');
+      } else {
+        alert("Camera not supported on this device/browser.");
+      }
+    } catch (err) {
+      console.error("Camera access denied:", err);
+      alert("Camera access denied or unavailable.");
+    }
+  });
 
-  scanCameraInput.addEventListener('change', handleImageInput);
+  function stopARCamera() {
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
+    arContainer.style.display = 'none';
+    scannerPlaceholder.style.display = 'flex';
+  }
+
+  arCloseBtn.addEventListener('click', stopARCamera);
+
+  arCaptureBtn.addEventListener('click', () => {
+    arCanvas.width = arVideo.videoWidth;
+    arCanvas.height = arVideo.videoHeight;
+    const ctx = arCanvas.getContext('2d');
+    ctx.drawImage(arVideo, 0, 0, arCanvas.width, arCanvas.height);
+    
+    // Capture base64
+    currentScanImage = arCanvas.toDataURL('image/jpeg', 0.8);
+    
+    // Show preview and close camera
+    scanPreview.src = currentScanImage;
+    scanPreview.classList.remove('hidden');
+    stopARCamera();
+    scannerPlaceholder.style.display = 'none';
+  });
+
+  document.getElementById('btn-upload-photo').addEventListener('click', () => scanUploadInput.click());
   scanUploadInput.addEventListener('change', handleImageInput);
 
   document.getElementById('scan-analyse-btn').addEventListener('click', () => {
@@ -738,9 +845,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       let systemContext = `Active mode: ${currentSelectedMode}\n`;
       const profile = JSON.parse(localStorage.getItem('safura_profile') || '{}');
+      const family = JSON.parse(localStorage.getItem('safura_family') || '[]');
       
-      if (profile.allergens && profile.allergens.length > 0) {
-        systemContext += `CRITICAL: User is strictly allergic to: ${profile.allergens.join(', ')}.\n`;
+      let allAllergens = new Set(profile.allergens || []);
+      family.forEach(f => {
+        (f.allergens || []).forEach(a => allAllergens.add(a));
+      });
+
+      if (allAllergens.size > 0) {
+        systemContext += `CRITICAL: The household is strictly allergic to: ${Array.from(allAllergens).join(', ')}. DO NOT INCLUDE THESE IN ANY FOOD OR MEAL PLAN.\n`;
       }
       
       systemContext += `User Profile Context:\n`;
@@ -761,6 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         addChatMessage('system', data.result);
         chatHistory.push({ role: 'assistant', content: data.result });
+        speakText(data.result);
       } else {
         addChatMessage('system', 'Service unavailable. Please try again.');
       }
@@ -789,6 +903,71 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') sendChatMessage();
   });
 
+  // ── Voice AI Integration ──────────────────────────────────
+  const chatMicBtn = document.getElementById('chat-mic-btn');
+  let recognition = null;
+  let isRecording = false;
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      isRecording = true;
+      chatMicBtn.style.background = 'rgba(239, 68, 68, 0.2)';
+      chatMicBtn.style.color = '#ef4444';
+      chatMicBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"></rect></svg>`;
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      chatInput.value = transcript;
+      sendChatMessage();
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error', event.error);
+      stopRecording();
+    };
+
+    recognition.onend = () => {
+      stopRecording();
+    };
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    chatMicBtn.style.background = 'rgba(56, 189, 248, 0.1)';
+    chatMicBtn.style.color = 'var(--safura-accent)';
+    chatMicBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`;
+  }
+
+  if (chatMicBtn) {
+    chatMicBtn.addEventListener('click', () => {
+      if (!recognition) {
+        alert("Voice recognition not supported in this browser.");
+        return;
+      }
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    });
+  }
+
+  // Speak AI Response
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // clear queue
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.rate = 1.05;
+      msg.pitch = 1.0;
+      window.speechSynthesis.speak(msg);
+    }
+  }
   // ── Quick Actions from Home Tab ────────────────────────────
   document.querySelectorAll('.scan-card-mini').forEach(card => {
     card.addEventListener('click', () => {
@@ -837,15 +1016,44 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (aiJson.groceryList && aiJson.groceryList.length > 0) {
-              html += `<div class="plan-day" style="margin-top: 1.5rem; color: #EF9F27;">Grocery List</div>`;
-              html += `<ul style="color: var(--safura-text-muted); padding-left: 1.5rem; font-size: 0.9rem;">`;
-              aiJson.groceryList.forEach(item => {
-                html += `<li style="margin-bottom: 0.5rem;">${item}</li>`;
+              html += `<div class="plan-day" style="margin-top: 1.5rem; color: #EF9F27;">Smart Grocery List</div>`;
+              html += `<div class="grocery-list-container" style="margin-top: 1rem;">`;
+              
+              const savedListState = JSON.parse(localStorage.getItem('safura_grocery_state') || '{}');
+              
+              aiJson.groceryList.forEach((item, idx) => {
+                const isChecked = savedListState[item] ? 'checked' : '';
+                html += `
+                  <label class="grocery-item" style="display: flex; align-items: center; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" class="grocery-checkbox" data-item="${item}" ${isChecked} style="margin-right: 1rem; width: 18px; height: 18px; accent-color: #EF9F27;">
+                    <span style="color: #E2E8F0; font-size: 0.95rem; ${isChecked ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item}</span>
+                  </label>
+                `;
               });
-              html += `</ul>`;
+              html += `</div>`;
             }
 
             planCard.innerHTML = html;
+
+            // Attach event listeners for grocery list
+            document.querySelectorAll('.grocery-checkbox').forEach(cb => {
+              cb.addEventListener('change', (e) => {
+                const itemName = e.target.dataset.item;
+                const state = JSON.parse(localStorage.getItem('safura_grocery_state') || '{}');
+                state[itemName] = e.target.checked;
+                localStorage.setItem('safura_grocery_state', JSON.stringify(state));
+                
+                // Toggle visual strikethrough
+                const textSpan = e.target.nextElementSibling;
+                if (e.target.checked) {
+                  textSpan.style.textDecoration = 'line-through';
+                  textSpan.style.opacity = '0.6';
+                } else {
+                  textSpan.style.textDecoration = 'none';
+                  textSpan.style.opacity = '1';
+                }
+              });
+            });
           } catch (e) {
             planCard.innerHTML = `<div class="plan-day">AI Curated Plan</div><pre style="white-space:pre-wrap;font-family:'Inter';font-size:0.85rem;line-height:1.6;color:#E2E8F0;">${data.text}</pre>`;
           }

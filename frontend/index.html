@@ -324,6 +324,17 @@
             <p class="tip-text">You're 22g short of your protein goal. A 150g chicken breast would cover it perfectly.</p>
           </div>
 
+          <!-- Quick Action -->
+          <div class="scan-card-mini mt-3" style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--safura-success); cursor: pointer;" onclick="document.querySelector('.nav-item[data-target=\'explore\']').click(); setTimeout(()=>document.querySelector('.module-list-item[data-mode=\'freshness\']').click(), 100);">
+            <div class="scan-icon" style="background: var(--safura-success); color: white;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="scan-details">
+              <h4 style="color: var(--safura-success);">Launch Freshness AI</h4>
+              <p>Scan food to instantly detect spoilage and expiration</p>
+            </div>
+          </div>
+
           <!-- Recent Scans -->
           <div class="section-header mt-3">
             <h3 class="section-heading">Recent Scans</h3>
@@ -378,7 +389,6 @@
             </div>
 
             <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
-              <input type="file" accept="image/*" capture="environment" id="scan-camera-input" hidden />
               <button class="btn btn-secondary full-width" id="btn-live-scan" style="flex: 1; font-size: 0.9rem; padding: 0.8rem;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem; vertical-align: text-bottom;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg> Live Scan
               </button>
@@ -387,6 +397,21 @@
               <button class="btn btn-secondary full-width" id="btn-upload-photo" style="flex: 1; font-size: 0.9rem; padding: 0.8rem;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem; vertical-align: text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Upload
               </button>
+            </div>
+
+            <!-- AR Camera Viewfinder -->
+            <div id="ar-camera-container" style="display: none; position: relative; margin-bottom: 1.5rem; border-radius: 12px; overflow: hidden; background: #000;">
+              <video id="ar-video" autoplay playsinline style="width: 100%; max-height: 400px; object-fit: cover;"></video>
+              <canvas id="ar-canvas" style="display: none;"></canvas>
+              
+              <div style="position: absolute; bottom: 1rem; left: 0; right: 0; display: flex; justify-content: center; gap: 1rem; padding: 0 1rem;">
+                <button class="btn btn-danger" id="ar-close-btn" style="border-radius: 50%; width: 50px; height: 50px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <button class="btn btn-primary" id="ar-capture-btn" style="flex: 1; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; vertical-align: middle;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg> Analyze Frame
+                </button>
+              </div>
             </div>
           </div>
 
@@ -443,6 +468,10 @@
               <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
               <div class="mod-content"><h4 class="mod-name">Allergen Guard</h4><p class="mod-desc">Strict safety checks for 14 EU allergens</p></div>
             </div>
+            <div class="module-list-item" data-mode="freshness">
+              <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+              <div class="mod-content"><h4 class="mod-name">Freshness AI</h4><p class="mod-desc">Analyze food spoilage and safety</p></div>
+            </div>
             <div class="module-list-item" data-mode="nutrition">
               <div class="mod-icon-wrapper"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
               <div class="mod-content"><h4 class="mod-name">Nutrition Coach</h4><p class="mod-desc">Personalized daily macro guidance</p></div>
@@ -475,15 +504,22 @@
           <div class="header"><h1>My Profile</h1></div>
 
           <!-- Profile Hero -->
-          <div class="profile-hero-card">
+          <div class="profile-hero-card" style="position: relative;">
             <div class="profile-avatar-wrap">
               <img id="profile-photo" class="profile-avatar" src="" alt="" />
               <div id="profile-avatar-fallback" class="profile-avatar-fallback">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
             </div>
-            <h3 id="profile-display-name">User</h3>
-            <p class="text-sm" id="profile-goal-label">Goal: —</p>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.5rem;">
+              <h3 id="profile-display-name" style="margin: 0;">User</h3>
+              <select id="family-profile-switcher" style="background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.8rem; cursor: pointer;">
+                <option value="main">My Profile</option>
+                <option value="new">+ Add Family Member</option>
+              </select>
+            </div>
+            <p class="text-sm" id="profile-goal-label" style="margin-top: 0.5rem;">Goal: —</p>
           </div>
 
           <!-- Health Stats Grid -->
@@ -584,9 +620,12 @@
           <div class="msg-bubble">How can I help you today?</div>
         </div>
       </div>
-      <div class="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" />
-        <button class="chat-send-btn" id="chat-send-btn">
+      <div class="chat-input-area" style="position: relative; display: flex; gap: 0.5rem;">
+        <button class="chat-mic-btn" id="chat-mic-btn" style="flex: 0 0 44px; height: 44px; border-radius: 50%; border: none; background: rgba(56, 189, 248, 0.1); color: var(--safura-accent); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        </button>
+        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" style="flex: 1; padding-left: 1rem;" />
+        <button class="chat-send-btn" id="chat-send-btn" style="flex: 0 0 44px; height: 44px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
         </button>
       </div>
