@@ -70,6 +70,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const API_URL = '/api';
 
+  // ── Core API Utility ────────────────────────────────────────
+  async function apiPost(endpoint, bodyData) {
+    try {
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyData)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      console.error('API Error:', err);
+      return { success: false, error: err.message };
+    }
+  }
+
   // ── Dynamic Mini-App Configuration ──────────────────────────
   const MODULE_META = {
     scan: { 
@@ -123,9 +139,13 @@ document.addEventListener('DOMContentLoaded', () => {
       name: 'Meal Planner', 
       desc: 'Super intelligent nutritional planning tailored to your goals.',
       form: [
-        { id: 'duration', type: 'select', label: 'Plan Duration', options: ['1 Day', '1 Week', '1 Month'] },
-        { id: 'goal', type: 'select', label: 'Primary Goal', options: ['Weight Loss', 'Maintenance', 'Muscle Gain'] },
-        { id: 'meals', type: 'select', label: 'Meals per Day', options: ['3 Meals', '3 Meals + Snacks'] }
+        { id: 'duration', type: 'select', label: 'Plan Duration', options: ['1 Day', '3 Days', '1 Week', '1 Month'] },
+        { id: 'goal', type: 'select', label: 'Primary Goal', options: ['Weight Loss', 'Maintenance', 'Muscle Gain', 'Recomposition', 'Athletic Performance'] },
+        { id: 'diet', type: 'select', label: 'Dietary Focus', options: ['Standard/Balanced', 'High Protein', 'Low Carb', 'Keto', 'Mediterranean', 'Vegan', 'Vegetarian', 'Paleo'] },
+        { id: 'budget', type: 'select', label: 'Budget Level', options: ['Budget-Friendly', 'Standard', 'Premium/Organic'] },
+        { id: 'prepTime', type: 'select', label: 'Max Prep Time (Per Meal)', options: ['Under 15 mins', 'Under 30 mins', 'Under 1 Hour', 'Unlimited'] },
+        { id: 'cuisine', type: 'select', label: 'Cuisine Preference', options: ['Global Mix', 'African', 'Asian', 'Mediterranean', 'Latin American', 'European'] },
+        { id: 'meals', type: 'select', label: 'Meals per Day', options: ['3 Meals', '3 Meals + 1 Snack', '3 Meals + 2 Snacks', 'Intermittent Fasting (2 Meals)'] }
       ]
     },
     carbon: { 
