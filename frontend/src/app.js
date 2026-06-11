@@ -5,10 +5,53 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/public/sw.js')
+    navigator.serviceWorker.register('/sw.js')
       .then(reg => console.log('SW registered'))
       .catch(err => console.error('SW error', err));
   }
+
+  // ── PWA Install Prompt ──────────────────────────────────────
+  let deferredInstallPrompt = null;
+  const installBanner = document.getElementById('pwa-install-banner');
+  const installBtn = document.getElementById('pwa-install-btn');
+  const dismissBtn = document.getElementById('pwa-dismiss-btn');
+
+  // Check if already installed or previously dismissed
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  const wasDismissed = localStorage.getItem('safura_pwa_dismissed');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (!isStandalone && !wasDismissed) {
+      installBanner.style.display = 'block';
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBanner.style.display = 'none';
+      }
+      deferredInstallPrompt = null;
+    });
+  }
+
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', () => {
+      installBanner.style.display = 'none';
+      localStorage.setItem('safura_pwa_dismissed', 'true');
+    });
+  }
+
+  // Auto-hide if app becomes installed
+  window.addEventListener('appinstalled', () => {
+    installBanner.style.display = 'none';
+    deferredInstallPrompt = null;
+  });
 
   const API_URL = '/api';
 

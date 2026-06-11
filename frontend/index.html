@@ -6,7 +6,7 @@
   <title>Safura AI</title>
   
   <meta name="theme-color" content="#031511" />
-  <link rel="manifest" href="public/manifest.json" />
+  <link rel="manifest" href="/manifest.json" />
 
   <!-- iOS PWA Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -234,6 +234,25 @@
               <button class="avatar" id="logout-btn">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
               </button>
+            </div>
+
+            <!-- PWA Install Banner (auto-disappears once installed) -->
+            <div id="pwa-install-banner" style="display: none; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(56,189,248,0.15)); border: 1px solid rgba(139,92,246,0.3); border-radius: 14px; padding: 0.85rem 1rem; margin-top: 1rem; backdrop-filter: blur(10px); animation: fadeInUp 0.5s ease;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--safura-accent), #38bdf8); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  </div>
+                  <div>
+                    <p style="font-weight: 600; font-size: 0.9rem; margin: 0;">Install Safura</p>
+                    <p style="color: var(--safura-text-muted); font-size: 0.78rem; margin: 0;">Add to Home Screen for the best experience</p>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                  <button id="pwa-install-btn" style="background: var(--safura-accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">Install</button>
+                  <button id="pwa-dismiss-btn" style="background: transparent; color: var(--safura-text-muted); border: none; font-size: 1.2rem; cursor: pointer; padding: 0 0.3rem;">✕</button>
+                </div>
+              </div>
             </div>
 
             <!-- Calorie Hero Card -->
