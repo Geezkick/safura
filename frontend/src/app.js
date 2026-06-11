@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const installBtn = document.getElementById('pwa-install-btn');
   const dismissBtn = document.getElementById('pwa-dismiss-btn');
 
+  const manualInstallBtn = document.getElementById('manual-install-btn');
+
   // Check if already installed or previously dismissed
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   const wasDismissed = localStorage.getItem('safura_pwa_dismissed');
@@ -23,26 +25,39 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
+    
+    // Show manual install button in profile if available
+    if (manualInstallBtn && !isStandalone) {
+      manualInstallBtn.style.display = 'block';
+    }
+
     if (!isStandalone && !wasDismissed) {
-      installBanner.style.display = 'block';
+      if (installBanner) installBanner.style.display = 'block';
     }
   });
 
+  const handleInstallClick = async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      if (installBanner) installBanner.style.display = 'none';
+      if (manualInstallBtn) manualInstallBtn.style.display = 'none';
+    }
+    deferredInstallPrompt = null;
+  };
+
   if (installBtn) {
-    installBtn.addEventListener('click', async () => {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === 'accepted') {
-        installBanner.style.display = 'none';
-      }
-      deferredInstallPrompt = null;
-    });
+    installBtn.addEventListener('click', handleInstallClick);
+  }
+
+  if (manualInstallBtn) {
+    manualInstallBtn.addEventListener('click', handleInstallClick);
   }
 
   if (dismissBtn) {
     dismissBtn.addEventListener('click', () => {
-      installBanner.style.display = 'none';
+      if (installBanner) installBanner.style.display = 'none';
       localStorage.setItem('safura_pwa_dismissed', 'true');
     });
   }
