@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => console.error('SW error', err));
   }
 
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = '/api';
 
   // ── Dynamic Mini-App Configuration ──────────────────────────
   const MODULE_META = {
@@ -63,9 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     mealplan: { 
       name: 'Meal Planner', 
-      desc: 'Automated nutritional planning tailored to your goals.',
+      desc: 'Super intelligent nutritional planning tailored to your goals.',
       form: [
-        { id: 'days', type: 'select', label: 'Number of Days', options: ['1 Day', '3 Days', '7 Days'] },
+        { id: 'duration', type: 'select', label: 'Plan Duration', options: ['1 Day', '1 Week', '1 Month'] },
         { id: 'goal', type: 'select', label: 'Primary Goal', options: ['Weight Loss', 'Maintenance', 'Muscle Gain'] },
         { id: 'meals', type: 'select', label: 'Meals per Day', options: ['3 Meals', '3 Meals + Snacks'] }
       ]
@@ -89,128 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const setAppView = (viewName) => {
-    Object.values(views).forEach(v => { v.style.display = 'none'; v.classList.remove('active'); });
-    if (views[viewName]) { views[viewName].style.display = 'flex'; views[viewName].classList.add('active'); }
+    Object.values(views).forEach(v => v.classList.remove('active'));
+    if (views[viewName]) views[viewName].classList.add('active');
   };
-
-  // ── API Helper ─────────────────────────────────────────────
-  const apiPost = async (endpoint, body) => {
-    const token = localStorage.getItem('safura_token');
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body)
-    });
-    return res.json();
-  };
-
-  const apiGet = async (endpoint) => {
-    const token = localStorage.getItem('safura_token');
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return res.json();
-  };
-
-  const apiPut = async (endpoint, body) => {
-    const token = localStorage.getItem('safura_token');
-    const res = await fetch(`${API_URL}${endpoint}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify(body)
-    });
-    return res.json();
-  };
-
-  // ── Auth Logic ─────────────────────────────────────────────
-  let authMode = 'login'; // 'login' or 'register'
-  const authTitle     = document.getElementById('auth-title');
-  const authSubtitle  = document.getElementById('auth-subtitle');
-  const authSubmitBtn = document.getElementById('auth-submit-btn');
-  const authToggleBtn = document.getElementById('auth-toggle-btn');
-  const authToggleText = document.getElementById('auth-toggle-text');
-
-  authToggleBtn.addEventListener('click', () => {
-    if (authMode === 'login') {
-      authMode = 'register';
-      authTitle.textContent = 'Create Account';
-      authSubtitle.textContent = 'Start your health intelligence journey';
-      authSubmitBtn.textContent = 'Create Account';
-      authToggleText.textContent = 'Already have an account?';
-      authToggleBtn.textContent = 'Sign in';
-    } else {
-      authMode = 'login';
-      authTitle.textContent = 'Welcome to Safura';
-      authSubtitle.textContent = 'Sign in to your health intelligence account';
-      authSubmitBtn.textContent = 'Sign In';
-      authToggleText.textContent = "Don't have an account?";
-      authToggleBtn.textContent = 'Create one';
-    }
-  });
-
-  document.getElementById('auth-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email    = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    
-    authSubmitBtn.textContent = authMode === 'login' ? 'Signing in...' : 'Creating account...';
-    authSubmitBtn.disabled = true;
-    
-    try {
-      const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
-      const data = await apiPost(endpoint, { email, password });
-      
-      if (data.token) {
-        localStorage.setItem('safura_token', data.token);
-        localStorage.setItem('safura_user', JSON.stringify(data.user));
-        document.getElementById('user-name').textContent = data.user.email.split('@')[0];
-        
-        // Check if user has a profile already
-        const profileRes = await apiGet('/profile');
-        if (profileRes.success && profileRes.profile && profileRes.profile.age) {
-          // Existing user with profile - load and go to main
-          const p = profileRes.profile;
-          localStorage.setItem('safura_profile', JSON.stringify(p));
-          initProfile();
-          setAppView('main');
-        } else {
-          // New user or incomplete profile - go to onboarding
-          setAppView('onboarding');
-        }
-      } else {
-        alert(data.error || 'Authentication failed');
-      }
-    } catch {
-      alert('Network error. Please check your connection and backend.');
-    } finally {
-      authSubmitBtn.textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
-      authSubmitBtn.disabled = false;
-    }
-  });
-
-  document.getElementById('logout-btn').addEventListener('click', () => {
-    localStorage.removeItem('safura_token');
-    localStorage.removeItem('safura_user');
-    localStorage.removeItem('safura_profile');
-    setAppView('auth');
-  });
 
   // ── Initialization ──────────────────────────────────────────
   setTimeout(() => {
-    const token = localStorage.getItem('safura_token');
-    const user  = JSON.parse(localStorage.getItem('safura_user') || 'null');
-    if (token && user) {
-      document.getElementById('user-name').textContent = user.email.split('@')[0];
-      if (localStorage.getItem('safura_profile')) {
-        initProfile();
-        setAppView('main');
-      } else {
-        setAppView('onboarding');
-      }
+    if (localStorage.getItem('safura_profile')) {
+      const user = JSON.parse(localStorage.getItem('safura_user') || '{"name":"User"}');
+      document.getElementById('user-name').textContent = user.name.split(' ')[0];
+      initProfile();
+      setAppView('main');
     } else {
-      setAppView('auth');
+      setAppView('onboarding');
     }
   }, 2000);
 
@@ -296,21 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
       currentStep++;
       updateOnboarding();
     } else {
-      // Save locally and sync to backend
+      // Save and finish
       localStorage.setItem('safura_profile', JSON.stringify(profileData));
-      
-      // Sync to backend database
-      apiPut('/profile', {
-        age: parseInt(profileData.age) || null,
-        gender: profileData.gender || null,
-        height: parseFloat(profileData.height) || null,
-        weight: parseFloat(profileData.weight) || null,
-        targetWeight: parseFloat(profileData.targetWeight) || null,
-        goal: profileData.goal || null,
-        diet: profileData.diet || null,
-        allergens: profileData.allergens || []
-      }).catch(err => console.warn('Profile sync failed:', err));
-      
       initProfile();
       setAppView('main');
     }
@@ -841,76 +719,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Smart Meal Planner ──────────────────────────────────────
-  let selectedPlanDuration = 'day';
-  
-  document.querySelectorAll('.plan-duration-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.plan-duration-btn').forEach(b => {
-        b.style.background = 'var(--safura-surface)';
-        b.style.color = 'var(--safura-text-muted)';
-        b.classList.remove('active');
-      });
-      btn.style.background = 'var(--safura-accent)';
-      btn.style.color = '#fff';
-      btn.classList.add('active');
-      selectedPlanDuration = btn.dataset.duration;
-    });
-  });
+  // ── Plan Tab Action ────────────────────────────────────────
+  const generatePlanBtn = document.querySelector('#view-plan .btn-primary');
+  if (generatePlanBtn) {
+    generatePlanBtn.addEventListener('click', async () => {
+      generatePlanBtn.textContent = 'Generating Secure Plan...';
+      generatePlanBtn.disabled = true;
+      try {
+        const planCard = document.querySelector('#view-plan .plan-card');
+        planCard.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--safura-accent);">Curating your optimal nutrition strategy...</div>';
+        
+        const data = await apiPost('/chat', {
+          mode: 'mealplan',
+          formData: { duration: '1 Week', goal: JSON.parse(localStorage.getItem('safura_profile')||'{}').goal || 'Maintain' },
+          profile: JSON.parse(localStorage.getItem('safura_profile') || '{}')
+        });
 
-  document.getElementById('generate-plan-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('generate-plan-btn');
-    const output = document.getElementById('meal-plan-output');
-    
-    btn.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span> Generating...';
-    btn.disabled = true;
-    
-    const profile = JSON.parse(localStorage.getItem('safura_profile') || '{}');
-    const durationMap = { day: '1 day (today)', week: '7 days (full week)', month: '30 days (full month)' };
-    
-    const prompt = `You are Safura AI, the world's most intelligent meal planner. Generate a comprehensive, personalized meal plan for ${durationMap[selectedPlanDuration]}.
+        if (data.success) {
+          try {
+            const aiJson = JSON.parse(data.text);
+            let html = '';
+            
+            aiJson.plan.forEach(dayPlan => {
+              html += `<div class="plan-day" style="margin-top: 1rem; color: #a78bfa;">Day ${dayPlan.day}</div>`;
+              dayPlan.meals.forEach(m => {
+                html += `
+                  <div class="meal" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div>
+                      <span class="time" style="font-weight: 600; color: #E2E8F0; display: block; margin-bottom: 0.2rem;">${m.type}</span>
+                      <span class="food" style="color: var(--safura-text-muted); font-size: 0.9rem;">${m.food}</span>
+                    </div>
+                    <div style="text-align: right;">
+                      <span style="color: #38bdf8; font-weight: 700; font-size: 0.9rem; display: block;">${m.calories} kcal</span>
+                      <span style="color: var(--safura-text-muted); font-size: 0.8rem;">${m.protein}g protein</span>
+                    </div>
+                  </div>
+                `;
+              });
+            });
 
-USER PROFILE:
-- Age: ${profile.age || 'Unknown'}, Gender: ${profile.gender || 'Unknown'}
-- Height: ${profile.height || '?'}cm, Weight: ${profile.weight || '?'}kg, Target: ${profile.targetWeight || '?'}kg
-- Goal: ${profile.goal || 'maintenance'}
-- Diet: ${profile.diet || 'standard'}
-- STRICT Allergens to AVOID: ${(profile.allergens && profile.allergens.length > 0) ? profile.allergens.join(', ') : 'None'}
+            if (aiJson.groceryList && aiJson.groceryList.length > 0) {
+              html += `<div class="plan-day" style="margin-top: 1.5rem; color: #EF9F27;">Grocery List</div>`;
+              html += `<ul style="color: var(--safura-text-muted); padding-left: 1.5rem; font-size: 0.9rem;">`;
+              aiJson.groceryList.forEach(item => {
+                html += `<li style="margin-bottom: 0.5rem;">${item}</li>`;
+              });
+              html += `</ul>`;
+            }
 
-REQUIREMENTS:
-- Include Breakfast, Lunch, Dinner, and 1 Snack per day
-- Show estimated calories and key macros (protein/carbs/fat) for each meal
-- All meals MUST be safe for the user's allergen profile
-- Tailor portions and macros to the user's weight goal
-- Use diverse, globally-inspired cuisine
-- Format each day clearly with a header like "Day 1 — Monday"
-- At the end, provide a daily calorie summary and a motivational tip`;
-
-    try {
-      const data = await apiPost('/chat', {
-        mode: 'mealplan',
-        messages: [{ role: 'user', content: prompt }],
-        userProfile: profile
-      });
-      
-      if (data.success && data.result) {
-        // Render the AI result as a styled card
-        output.innerHTML = `
-          <div style="background: var(--safura-surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.25rem; margin-bottom: 0.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--safura-accent)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span style="font-weight: 700; font-family: 'Outfit', sans-serif; font-size: 1rem;">AI Generated Plan · ${durationMap[selectedPlanDuration]}</span>
-            </div>
-            <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.7; color: var(--safura-text); margin: 0;">${data.result}</pre>
-          </div>`;
-      } else {
-        output.innerHTML = `<div style="background: var(--safura-surface); border-radius: 16px; padding: 1.5rem; text-align: center; color: #EF4444;">Failed to generate plan. Please try again.</div>`;
+            planCard.innerHTML = html;
+          } catch (e) {
+            planCard.innerHTML = `<div class="plan-day">AI Curated Plan</div><pre style="white-space:pre-wrap;font-family:'Inter';font-size:0.85rem;line-height:1.6;color:#E2E8F0;">${data.text}</pre>`;
+          }
+        }
+      } catch {
+        alert('AI unavailable. Check your connection.');
+      } finally {
+        generatePlanBtn.textContent = 'Generate New Plan';
+        generatePlanBtn.disabled = false;
       }
-    } catch {
-      output.innerHTML = `<div style="background: var(--safura-surface); border-radius: 16px; padding: 1.5rem; text-align: center; color: #EF4444;">Network error. Check your connection.</div>`;
-    } finally {
-      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:0.5rem;vertical-align:text-bottom;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Generate Smart Plan`;
-      btn.disabled = false;
-    }
-  });
+    });
+  }
+
+  // ── Camera Scan Action ─────────────────────────────────────
+  const captureBtn = document.getElementById('capture-btn');
+  const camScanModal = document.getElementById('scan-modal');
+  const closeCamScan = document.getElementById('close-scan');
+  
+  if (captureBtn && camScanModal) {
+    captureBtn.addEventListener('click', async () => {
+      camScanModal.classList.remove('hidden');
+      const body = document.getElementById('scan-result-body');
+      body.innerHTML = '<div style="text-align:center;padding:2rem;color:#A0AEC0;">Processing visual data...</div>';
+      
+      try {
+        const data = await apiPost('/scan/text', {
+          foodName: 'Sushi Roll',
+          userProfile: { allergens: getActiveAllergens() }
+        });
+        if (data.success) {
+          body.innerHTML = `<h2 style="font-family:'Outfit';margin-bottom:1rem;">Analysis Complete</h2><pre style="white-space:pre-wrap;font-family:'Inter';font-size:0.9rem;line-height:1.6;color:#E2E8F0;">${data.result}</pre>`;
+        } else {
+          body.innerHTML = '<div style="color:#EF4444;">Processing failed.</div>';
+        }
+      } catch {
+        body.innerHTML = '<div style="color:#EF4444;">Network connection lost.</div>';
+      }
+    });
+    
+    closeCamScan.addEventListener('click', () => {
+      camScanModal.classList.add('hidden');
+    });
+  }
 });
