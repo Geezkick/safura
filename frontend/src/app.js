@@ -333,18 +333,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Live Trackers Logic ────────────────────────────────────
   function initLiveTrackers(profile) {
+    const defaultPrefs = { waterInterval: 2, mealInterval: 4 };
+    let trackerPrefs = JSON.parse(localStorage.getItem('safura_tracker_prefs')) || defaultPrefs;
+
+    // Helper for Native Notifications
+    function notifyUser(title, body) {
+      if (!("Notification" in window)) return;
+      if (Notification.permission === "granted") {
+        new Notification(title, { body, icon: '/icons/icon-192x192.png' });
+      }
+    }
+
+    // Modal UI Setup
+    const trackerModal = document.getElementById('tracker-modal');
+    document.getElementById('tracker-settings-btn').onclick = () => {
+      document.getElementById('water-interval-slider').value = trackerPrefs.waterInterval;
+      document.getElementById('water-interval-val').textContent = `Every ${trackerPrefs.waterInterval} hrs`;
+      document.getElementById('meal-interval-slider').value = trackerPrefs.mealInterval;
+      document.getElementById('meal-interval-val').textContent = `Every ${trackerPrefs.mealInterval.toFixed(1)} hrs`;
+      trackerModal.classList.remove('hidden');
+    };
+
+    document.getElementById('close-tracker-modal').onclick = () => trackerModal.classList.add('hidden');
+
+    document.getElementById('water-interval-slider').oninput = (e) => {
+      document.getElementById('water-interval-val').textContent = `Every ${e.target.value} hrs`;
+    };
+    document.getElementById('meal-interval-slider').oninput = (e) => {
+      document.getElementById('meal-interval-val').textContent = `Every ${parseFloat(e.target.value).toFixed(1)} hrs`;
+    };
+
+    document.getElementById('save-tracker-prefs-btn').onclick = () => {
+      if ("Notification" in window && Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+      
+      trackerPrefs.waterInterval = parseFloat(document.getElementById('water-interval-slider').value);
+      trackerPrefs.mealInterval = parseFloat(document.getElementById('meal-interval-slider').value);
+      localStorage.setItem('safura_tracker_prefs', JSON.stringify(trackerPrefs));
+      
+      const now = Date.now();
+      localStorage.setItem('safura_next_water', (now + trackerPrefs.waterInterval * 3600000).toString());
+      
+      nextMealTime = now + trackerPrefs.mealInterval * 3600000;
+      localStorage.setItem('safura_next_meal', nextMealTime.toString());
+      
+      waterNotified = false;
+      mealNotified = false;
+      
+      updateMealTimer();
+      trackerModal.classList.add('hidden');
+    };
+
     // Hydration Tracker
-    // Goal based on weight (kg * 0.033 L). Default 2.5L
     const waterGoal = profile.weight ? parseFloat((profile.weight * 0.033).toFixed(1)) : 2.5;
     document.getElementById('water-goal').textContent = `${waterGoal}L`;
     
-    // Get current water from local storage (reset daily)
     const todayStr = new Date().toDateString();
     let hydrationState = JSON.parse(localStorage.getItem('safura_hydration') || '{}');
     if (hydrationState.date !== todayStr) {
       hydrationState = { date: todayStr, current: 0 };
     }
     
+    let nextWaterTime = parseInt(localStorage.getItem('safura_next_water') || '0');
+    if (!nextWaterTime || nextWaterTime < Date.now()) {
+      nextWaterTime = Date.now() + trackerPrefs.waterInterval * 3600000;
+      localStorage.setItem('safura_next_water', nextWaterTime.toString());
+    }
+
     function updateWaterUI() {
       document.getElementById('water-current').textContent = `${hydrationState.current.toFixed(1)}L`;
       const pct = Math.min(100, (hydrationState.current / waterGoal) * 100);
@@ -354,18 +410,18 @@ document.addEventListener('DOMContentLoaded', () => {
     updateWaterUI();
 
     document.getElementById('add-water-btn').onclick = () => {
-      hydrationState.current += 0.25; // add 250ml per click
+      hydrationState.current += 0.25;
       updateWaterUI();
+      // Reset water reminder since user just drank
+      nextWaterTime = Date.now() + trackerPrefs.waterInterval * 3600000;
+      localStorage.setItem('safura_next_water', nextWaterTime.toString());
+      waterNotified = false;
     };
 
     // Meal Tracker
-    // Default to 4 hour intervals
-    const MEAL_INTERVAL_MS = 4 * 60 * 60 * 1000;
     let nextMealTime = parseInt(localStorage.getItem('safura_next_meal') || '0');
-    
     if (!nextMealTime || nextMealTime < Date.now()) {
-      // If no next meal or it's in the past, set to exactly 4 hours from now
-      nextMealTime = Date.now() + MEAL_INTERVAL_MS;
+      nextMealTime = Date.now() + trackerPrefs.mealInterval * 3600000;
       localStorage.setItem('safura_next_meal', nextMealTime.toString());
     }
 
@@ -381,12 +437,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const mealCountdownEl = document.getElementById('meal-countdown');
     mealTypeEl.textContent = getMealName();
 
+    let waterNotified = false;
+    let mealNotified = false;
+
     function updateMealTimer() {
       const now = Date.now();
+      
+      // Check Water Notification
+      if (now >= nextWaterTime && !waterNotified) {
+        notifyUser("💧 Time to Hydrate!", `Stay on track! You're currently at ${hydrationState.current.toFixed(1)}L out of your ${waterGoal}L daily goal.`);
+        waterNotified = true;
+      }
+
+      // Check Meal Notification
       const diff = nextMealTime - now;
       if (diff <= 0) {
         mealCountdownEl.textContent = "00:00:00";
         mealTypeEl.textContent = "Time to Eat!";
+        
+        if (!mealNotified) {
+          notifyUser("🍽️ " + getMealName() + " Time!", "Time to refuel according to your customized schedule.");
+          mealNotified = true;
+        }
         return;
       }
       
@@ -400,9 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMealTimer();
 
     document.getElementById('log-meal-btn').onclick = () => {
-      nextMealTime = Date.now() + MEAL_INTERVAL_MS;
+      nextMealTime = Date.now() + trackerPrefs.mealInterval * 3600000;
       localStorage.setItem('safura_next_meal', nextMealTime.toString());
       mealTypeEl.textContent = getMealName();
+      mealNotified = false;
       updateMealTimer();
     };
   }
