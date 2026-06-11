@@ -89,6 +89,36 @@
       </div>
     </div>
 
+    <!-- ── Authentication Screen ────────────────────────────── -->
+    <div id="auth-screen" class="view" style="display: none; justify-content: center; align-items: center; padding: 2rem;">
+      <div class="auth-container" style="width: 100%; max-width: 400px; background: var(--safura-surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div class="auth-logo" style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--safura-accent), #a78bfa); border-radius: 16px; margin: 0 auto 1rem; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;" id="auth-title">Welcome to Safura</h2>
+          <p style="color: var(--safura-text-muted); font-size: 0.95rem;" id="auth-subtitle">Sign in to your health intelligence account</p>
+        </div>
+
+        <form id="auth-form" onsubmit="event.preventDefault();">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="form-input" type="email" id="auth-email" placeholder="you@example.com" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          </div>
+          <div class="form-group" style="margin-bottom: 2rem;">
+            <label class="form-label">Password</label>
+            <input class="form-input" type="password" id="auth-password" placeholder="••••••••" required style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1);" />
+          </div>
+          <button type="submit" class="btn btn-primary full-width" id="auth-submit-btn" style="padding: 1rem; font-size: 1rem; border-radius: 12px; margin-bottom: 1rem;">Sign In</button>
+        </form>
+
+        <div style="text-align: center; font-size: 0.9rem; color: var(--safura-text-muted);">
+          <span id="auth-toggle-text">Don't have an account?</span> 
+          <button id="auth-toggle-btn" class="text-btn" style="color: var(--safura-accent); font-weight: 600;">Create one</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Health Onboarding ──────────────────────────────── -->
     <div id="onboarding-screen" class="view onboarding-view">
       <div class="onboard-container">
@@ -359,24 +389,27 @@
         <!-- Plan View -->
         <div id="view-plan" class="tab-view">
           <div class="header">
-            <h1>Meal Plan</h1>
+            <h1>Meal Planner</h1>
+            <p class="subtitle mt-2">AI-powered nutrition planning</p>
           </div>
-          <div class="plan-card">
-            <div class="plan-day">Today</div>
-            <div class="meal">
-              <span class="time">Breakfast</span>
-              <span class="food">Oatmeal with Berries</span>
-            </div>
-            <div class="meal">
-              <span class="time">Lunch</span>
-              <span class="food">Chicken Salad Wrap</span>
-            </div>
-            <div class="meal">
-              <span class="time">Dinner</span>
-              <span class="food">Grilled Salmon & Quinoa</span>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+            <button class="plan-duration-btn active" data-duration="day" style="flex:1; padding: 0.7rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--safura-accent); color: #fff; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">Today</button>
+            <button class="plan-duration-btn" data-duration="week" style="flex:1; padding: 0.7rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--safura-surface); color: var(--safura-text-muted); font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">7 Days</button>
+            <button class="plan-duration-btn" data-duration="month" style="flex:1; padding: 0.7rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--safura-surface); color: var(--safura-text-muted); font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">30 Days</button>
+          </div>
+
+          <div id="meal-plan-output" style="margin-bottom: 1.5rem;">
+            <div class="plan-card" style="background: var(--safura-surface); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem; text-align: center;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--safura-text-muted)" stroke-width="1.5" style="margin-bottom: 1rem;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <p style="color: var(--safura-text-muted); font-size: 0.9rem;">No active meal plan. Generate a personalized plan based on your health profile.</p>
             </div>
           </div>
-          <button class="btn btn-primary full-width mt-4" style="margin-top:1rem;">Generate New Plan</button>
+          
+          <button class="btn btn-primary full-width" id="generate-plan-btn" style="padding: 1rem; font-size: 1rem; border-radius: 14px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: text-bottom;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Generate Smart Plan
+          </button>
         </div>
 
         <!-- Explore View (8 Focused Modules) -->

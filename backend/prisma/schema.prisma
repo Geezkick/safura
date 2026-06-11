@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  healthProfile HealthProfile?
+  scanHistory   ScanHistory[]
+  mealPlans     MealPlan[]
+}
+
+model HealthProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  
+  age              Int?
+  gender           String?
+  height           Float?
+  weight           Float?
+  targetWeight     Float?
+  goal             String?  // lose, maintain, gain
+  diet             String?  // standard, vegan, keto, etc.
+  allergens        String[] // Array of strings e.g. ["Nuts", "Dairy"]
+  photo            String?  // base64 or URL
+  
+  waterInterval    Float    @default(2.0)
+  mealInterval     Float    @default(4.0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model ScanHistory {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  
+  foodName         String
+  calories         Int?
+  protein          Float?
+  carbs            Float?
+  fat              Float?
+  isSafe           Boolean  @default(true)
+  analysisDetails  String   @db.Text
+  
+  createdAt        DateTime @default(now())
+}
+
+model MealPlan {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  
+  planData         String   @db.Text // JSON string containing the generated plan
+  createdAt        DateTime @default(now())
+}

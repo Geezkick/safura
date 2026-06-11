@@ -11,6 +11,8 @@ const recipeRoutes  = require('./routes/recipe');
 const userRoutes    = require('./routes/user');
 const planRoutes    = require('./routes/mealplan');
 const freshRoutes   = require('./routes/freshness');
+const authRoutes    = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +28,8 @@ const limiter = rateLimit({ windowMs: 60 * 1000, max: 30, message: { error: 'Too
 app.use('/api/', limiter);
 
 // ── Routes ─────────────────────────────────────────────────────
+app.use('/api/auth',      authRoutes);
+app.use('/api/profile',   profileRoutes);
 app.use('/api/scan',      scanRoutes);
 app.use('/api/chat',      chatRoutes);
 app.use('/api/recipe',    recipeRoutes);
