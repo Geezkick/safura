@@ -25,36 +25,36 @@ document.addEventListener('DOMContentLoaded', () => {
   // Detect iOS since it doesn't support beforeinstallprompt
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-  // Show installation UI immediately ONLY on iOS if not installed
+  // Show installation UI immediately if not installed and not dismissed
   if (!isStandalone && !wasDismissed) {
-    if (isIOS) {
-      if (manualInstallBtn) manualInstallBtn.style.display = 'block';
-      if (installBanner) installBanner.style.display = 'block';
-    }
+    if (manualInstallBtn) manualInstallBtn.style.display = 'block';
+    if (installBanner) installBanner.style.display = 'block';
   }
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    
-    // On Android/Desktop, show the banner ONLY when the native prompt is ready
-    if (!isStandalone && !wasDismissed) {
-      if (manualInstallBtn) manualInstallBtn.style.display = 'block';
-      if (installBanner) installBanner.style.display = 'block';
-    }
   });
 
   const handleInstallClick = async () => {
     if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === 'accepted') {
-        if (installBanner) installBanner.style.display = 'none';
-        if (manualInstallBtn) manualInstallBtn.style.display = 'none';
+      try {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === 'accepted') {
+          if (installBanner) installBanner.style.display = 'none';
+          if (manualInstallBtn) manualInstallBtn.style.display = 'none';
+        }
+        deferredInstallPrompt = null;
+      } catch (err) {
+        console.error("Install prompt error:", err);
       }
-      deferredInstallPrompt = null;
     } else {
-      alert("To install Safura:\n\niOS: Tap the Share icon (bottom center) and select 'Add to Home Screen'.\n\nAndroid: Tap the browser menu and select 'Install app' or 'Add to Home screen'.");
+      if (isIOS) {
+        alert("To install on iOS:\n\n1. Tap the Share icon (bottom center).\n2. Scroll down and tap 'Add to Home Screen'.");
+      } else {
+        alert("Your browser is still preparing the install process.\n\nPlease wait a few seconds and try again, or tap the browser menu (⋮) and select 'Install app'.");
+      }
     }
   };
 
