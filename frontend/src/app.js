@@ -22,15 +22,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   const wasDismissed = localStorage.getItem('safura_pwa_dismissed');
 
-  // Show installation UI if not installed
+  // Detect iOS since it doesn't support beforeinstallprompt
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  // Show installation UI immediately ONLY on iOS if not installed
   if (!isStandalone && !wasDismissed) {
-    if (manualInstallBtn) manualInstallBtn.style.display = 'block';
-    if (installBanner) installBanner.style.display = 'block';
+    if (isIOS) {
+      if (manualInstallBtn) manualInstallBtn.style.display = 'block';
+      if (installBanner) installBanner.style.display = 'block';
+    }
   }
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
+    
+    // On Android/Desktop, show the banner ONLY when the native prompt is ready
+    if (!isStandalone && !wasDismissed) {
+      if (manualInstallBtn) manualInstallBtn.style.display = 'block';
+      if (installBanner) installBanner.style.display = 'block';
+    }
   });
 
   const handleInstallClick = async () => {
