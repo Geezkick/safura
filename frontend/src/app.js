@@ -22,29 +22,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   const wasDismissed = localStorage.getItem('safura_pwa_dismissed');
 
+  // Show installation UI if not installed
+  if (!isStandalone) {
+    if (manualInstallBtn) manualInstallBtn.style.display = 'block';
+    if (!wasDismissed && installBanner) {
+      installBanner.style.display = 'block';
+    }
+  }
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    
-    // Show manual install button in profile if available
-    if (manualInstallBtn && !isStandalone) {
-      manualInstallBtn.style.display = 'block';
-    }
-
-    if (!isStandalone && !wasDismissed) {
-      if (installBanner) installBanner.style.display = 'block';
-    }
   });
 
   const handleInstallClick = async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    if (outcome === 'accepted') {
-      if (installBanner) installBanner.style.display = 'none';
-      if (manualInstallBtn) manualInstallBtn.style.display = 'none';
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') {
+        if (installBanner) installBanner.style.display = 'none';
+        if (manualInstallBtn) manualInstallBtn.style.display = 'none';
+      }
+      deferredInstallPrompt = null;
+    } else {
+      alert("To install Safura:\n\niOS: Tap the Share icon (bottom center) and select 'Add to Home Screen'.\n\nAndroid: Tap the browser menu and select 'Install app' or 'Add to Home screen'.");
     }
-    deferredInstallPrompt = null;
   };
 
   if (installBtn) {
