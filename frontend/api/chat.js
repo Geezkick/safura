@@ -20,7 +20,7 @@ User Profile: ${JSON.stringify(profile)}`;
 
     // Mode handling for AI prompts
     if (mode === 'scan') {
-      systemPrompt += `\nAnalyze the food. Provide: Exact Name, History, Macros, Diet Type, Temp preference (warm/cold), Freshness, and strict Allergen check. Be precise.`;
+      systemPrompt += `\nAnalyze the food based on the provided image or text description. Provide:\n1. Exact Name & Cultural Origin\n2. Detailed Macros (Calories, Protein, Fat, Carbs)\n3. Diet Type (e.g. Keto, Vegan, Halal)\n4. Temp preference (warm/cold)\n5. Visual Freshness / Spoilage assessment\n6. Strict Allergen check based on user profile.\n\nBe incredibly precise and professional in your feedback.`;
       
       if (image) {
         finalMessages = [{
@@ -77,7 +77,8 @@ Your goal is to accurately assess its spoilage risk, remaining shelf life, and s
 
     return res.status(200).json({
       success: true,
-      text: response.content[0].text
+      text: response.content[0].text,
+      result: response.content[0].text
     });
 
   } catch (error) {
