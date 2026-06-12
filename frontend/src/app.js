@@ -713,6 +713,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Store the raw base64 to clear UI safely
     const storedImage = currentScanImage;
 
+    let userVisibleMessage = "";
+    if (currentScanImage && textInput) {
+      userVisibleMessage = `I uploaded a photo and added: "${textInput}"`;
+    } else if (currentScanImage) {
+      userVisibleMessage = `I uploaded a photo for analysis.`;
+    } else {
+      userVisibleMessage = textInput;
+    }
+
     // Reset scanner UI
     document.getElementById('scan-text-input').value = '';
     currentScanImage = null;
@@ -721,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scannerPlaceholder.classList.remove('hidden');
 
     // Route directly to the AI Chat Modal for real analysis
-    openChatModule('scan', contentPayload, !!storedImage);
+    openChatModule('scan', contentPayload, userVisibleMessage);
   });
 
   // ── Dynamic Mini-App Form Engine ───────────────────────────
@@ -804,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) compiled += `${f.label}: ${el.value}\n`;
       });
       featureDetailsScreen.classList.remove('open');
-      openChatModule(mode, compiled);
+      openChatModule(mode, compiled, `I submitted my parameters for ${meta.name}.`);
     });
 
     featureDetailsScreen.classList.add('open');
@@ -845,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatHistory = [];
   });
 
-  function openChatModule(mode, autoPrompt = null, hasImage = false) {
+  function openChatModule(mode, apiPayload = null, userVisibleText = null) {
     const meta = MODULE_META[mode];
     if (!meta) return;
     currentSelectedMode = mode;
@@ -859,14 +868,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chatModal.classList.remove('hidden');
     
-    if (autoPrompt) {
-      if (hasImage || Array.isArray(autoPrompt)) {
-        addChatMessage('user', "I have submitted a photo and description for analysis.");
+    if (apiPayload) {
+      if (userVisibleText) {
+        addChatMessage('user', userVisibleText);
       } else {
         addChatMessage('user', "I have submitted the form parameters.");
       }
       chatInput.value = '';
-      chatHistory.push({ role: 'user', content: autoPrompt });
+      chatHistory.push({ role: 'user', content: apiPayload });
       
       triggerChatRequest();
     } else {
@@ -1032,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.scan-card-mini').forEach(card => {
     card.addEventListener('click', () => {
       const foodName = card.querySelector('h4').textContent;
-      openChatModule('scan', `Can you scan this: ${foodName}`);
+      openChatModule('scan', `Can you scan this: ${foodName}`, `Can you analyze a ${foodName}?`);
     });
   });
 
