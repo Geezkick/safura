@@ -29,11 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Detect iOS since it doesn't support beforeinstallprompt
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-  // Show installation UI immediately if not installed and not dismissed
-  if (!isStandalone && !wasDismissed) {
-    if (manualInstallBtn) manualInstallBtn.style.display = 'block';
-    if (installBanner) installBanner.style.display = 'block';
+  const showInstallUI = () => {
+    if (!isStandalone && !wasDismissed) {
+      if (manualInstallBtn) manualInstallBtn.style.display = 'block';
+      if (installBanner) installBanner.style.display = 'block';
+    }
+  };
+
+  // Show installation UI only when the native prompt is ready or if iOS
+  if (window.safuraDeferredPrompt || isIOS) {
+    showInstallUI();
   }
+
+  window.addEventListener('safura-prompt-ready', () => {
+    deferredInstallPrompt = window.safuraDeferredPrompt;
+    showInstallUI();
+  });
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();

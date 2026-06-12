@@ -1,5 +1,5 @@
 {
-  "name": "Safura AI",
+  "name": "Safura",
   "short_name": "Safura",
   "description": "The world's most culturally-aware food intelligence platform.",
   "start_url": "/",
@@ -22,7 +22,7 @@
       "src": "/assets/icons/web/favicon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
