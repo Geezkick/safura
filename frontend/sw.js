@@ -1,4 +1,4 @@
-const CACHE_NAME = 'safura-ai-v1';
+const CACHE_NAME = 'safura-ai-v4';
 const urlsToCache = [
   '/',
   '/index.html',

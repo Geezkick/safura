@@ -21,6 +21,15 @@
 
   <link rel="icon" href="/assets/icons/web/favicon.png" />
   <link rel="stylesheet" href="src/styles/main.css" />
+
+  <script>
+    window.safuraDeferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      window.safuraDeferredPrompt = e;
+      window.dispatchEvent(new Event('safura-prompt-ready'));
+    });
+  </script>
 </head>
 <body class="mobile-app">
 

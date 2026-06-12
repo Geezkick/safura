@@ -11,7 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── PWA Install Prompt ──────────────────────────────────────
-  let deferredInstallPrompt = null;
+  let deferredInstallPrompt = window.safuraDeferredPrompt || null;
+
+  window.addEventListener('safura-prompt-ready', () => {
+    deferredInstallPrompt = window.safuraDeferredPrompt;
+  });
   const installBanner = document.getElementById('pwa-install-banner');
   const installBtn = document.getElementById('pwa-install-btn');
   const dismissBtn = document.getElementById('pwa-dismiss-btn');
@@ -37,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const handleInstallClick = async () => {
+    if (!deferredInstallPrompt && window.safuraDeferredPrompt) {
+      deferredInstallPrompt = window.safuraDeferredPrompt;
+    }
+
     if (deferredInstallPrompt) {
       try {
         deferredInstallPrompt.prompt();
@@ -46,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (manualInstallBtn) manualInstallBtn.style.display = 'none';
         }
         deferredInstallPrompt = null;
+        window.safuraDeferredPrompt = null;
       } catch (err) {
         console.error("Install prompt error:", err);
       }
