@@ -227,24 +227,7 @@
               </button>
             </div>
 
-            <!-- PWA Install Banner (auto-disappears once installed) -->
-            <div id="pwa-install-banner" style="display: none; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(56,189,248,0.15)); border: 1px solid rgba(139,92,246,0.3); border-radius: 14px; padding: 0.85rem 1rem; margin-top: 1rem; backdrop-filter: blur(10px); animation: fadeInUp 0.5s ease;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                  <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--safura-accent), #38bdf8); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                  </div>
-                  <div>
-                    <p style="font-weight: 600; font-size: 0.9rem; margin: 0;">Install Safura</p>
-                    <p style="color: var(--safura-text-muted); font-size: 0.78rem; margin: 0;">Add to Home Screen for the best experience</p>
-                  </div>
-                </div>
-                <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
-                  <button id="pwa-install-btn" style="background: var(--safura-accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">Install</button>
-                  <button id="pwa-dismiss-btn" style="background: transparent; color: var(--safura-text-muted); border: none; font-size: 1.2rem; cursor: pointer; padding: 0 0.3rem;">✕</button>
-                </div>
-              </div>
-            </div>
+
 
             <!-- Calorie Hero Card -->
             <div class="calorie-hero-card">
@@ -659,6 +642,25 @@
         </div>
 
         <button id="save-tracker-prefs-btn" class="btn btn-primary full-width">Save & Enable Notifications</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Global PWA Install Banner -->
+  <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 80px; left: 1rem; right: 1rem; z-index: 9999; background: linear-gradient(135deg, rgba(20,20,20,0.9), rgba(10,10,10,0.95)); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 16px; padding: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(20px); animation: fadeInUp 0.5s ease;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 44px; height: 44px; background: var(--safura-surface); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <img src="/assets/icons/web/favicon.png" style="width: 100%; height: 100%; border-radius: 12px;" alt="Icon" />
+        </div>
+        <div>
+          <p style="font-weight: 700; font-size: 0.95rem; margin: 0; color: #fff;">Install Safura App</p>
+          <p style="color: var(--safura-text-muted); font-size: 0.8rem; margin: 0;">Add to Home Screen</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+        <button id="pwa-install-btn" style="background: var(--safura-accent); color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);">Install</button>
+        <button id="pwa-dismiss-btn" style="background: transparent; color: var(--safura-text-muted); border: none; font-size: 1.2rem; cursor: pointer; padding: 0 0.5rem;">✕</button>
       </div>
     </div>
   </div>
