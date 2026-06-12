@@ -1,4 +1,4 @@
-const CACHE_NAME = 'safura-ai-v4';
+const CACHE_NAME = 'safura-ai-v6';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -24,29 +24,38 @@ self.addEventListener('install', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+        // Clone the response and save it to cache so it works offline later
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+        return response;
+      })
+      .catch(() => {
+        // If network fails (offline), fall back to cache
+        return caches.match(event.request);
       })
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim());
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      // Force all active tabs to reload immediately so the user sees the new version
+      self.clients.matchAll({ type: 'window' }).then(windowClients => {
+        windowClients.forEach(client => {
+          client.navigate(client.url);
+        });
+      });
     })
   );
 });
