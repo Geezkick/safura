@@ -9,8 +9,8 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  const { mode, profile, formData, image, query, messages } = req.body || {};
   try {
-    const { mode, profile, formData, image, query, messages } = req.body;
 
     let systemPrompt = `You are Safura, an elite AI nutrition, culinary, and health utility. 
 Always factor in the user's health profile in your answers. Do not ignore allergies.
