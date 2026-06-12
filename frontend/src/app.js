@@ -23,11 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const wasDismissed = localStorage.getItem('safura_pwa_dismissed');
 
   // Show installation UI if not installed
-  if (!isStandalone) {
+  if (!isStandalone && !wasDismissed) {
     if (manualInstallBtn) manualInstallBtn.style.display = 'block';
-    if (!wasDismissed && installBanner) {
-      installBanner.style.display = 'block';
-    }
+    if (installBanner) installBanner.style.display = 'block';
   }
 
   window.addEventListener('beforeinstallprompt', (e) => {
@@ -66,7 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auto-hide if app becomes installed
   window.addEventListener('appinstalled', () => {
-    installBanner.style.display = 'none';
+    if (installBanner) installBanner.style.display = 'none';
+    if (manualInstallBtn) manualInstallBtn.style.display = 'none';
+    localStorage.setItem('safura_pwa_dismissed', 'true');
     deferredInstallPrompt = null;
   });
 
